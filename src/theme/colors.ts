@@ -1,36 +1,57 @@
 // src/theme/colors.ts
 
 export const Colors = {
-  // Brand Colors
+  // =========================
+  // BRAND COLORS
+  // =========================
   primary: "#7B4A2E",
-  secondary: "2E7D32",
-  primaryDark: "#9A3412",
-  accent: "#f5ad29",
-  billing: "#0b4bfa",
-  menu: "#16A34A",
-  logout: "#e61717",
-  category: "#13ec13",
+  primaryDark: "#5D351F",
+  secondary: "#2E7D32",
+  accent: "#F5AD29",
 
-  // Backgrounds
+  billing: "#2563EB",
+  menu: "#16A34A",
+  logout: "#DC2626",
+  category: "#2563EB",
+
+  // =========================
+  // BACKGROUNDS
+  // =========================
   background: "#FFF8F0",
   surface: "#F8FAFC",
   card: "#FFFFFF",
 
-  // Text
-  heading: "#131212",
-  text: "#000000",
-  textSecondary: "#666666",
+  // =========================
+  // TEXT
+  // =========================
+  heading: "#1F2937",
+  text: "#111827",
+  textSecondary: "#6B7280",
   textLight: "#9CA3AF",
 
-  // Buttons
+  // =========================
+  // BUTTONS
+  // =========================
   buttonText: "#FFFFFF",
 
-  // Status
-  success: "#43A047",
-  warning: "#FB8C00",
+  // =========================
+  // STATUS
+  // =========================
+  success: "#16A34A",
+  warning: "#F59E0B",
   danger: "#DC2626",
 
-  // Misc
+  // =========================
+  // MISC
+  // =========================
   border: "#E5E7EB",
   icon: "#374151",
+
+  // Additional UI colors
+  searchBackground: "#FFFFFF",
+  categoryBackground: "#F1F5F9",
+  selectedCategory: "#2563EB",
+  cartBackground: "#FFFFFF",
+  whatsapp: "#25D366",
+  price: "#15803D",
 };

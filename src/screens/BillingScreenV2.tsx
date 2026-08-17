@@ -1,5 +1,7 @@
 import React from "react";
+
 import { View, StyleSheet } from "react-native";
+
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import BillingHeader from "../components/billing/BillingHeader";
@@ -7,6 +9,7 @@ import CategoryTabs from "../components/billing/CategoryTabs";
 import MenuGrid from "../components/billing/MenuGrid";
 import CartBottomSheet from "../components/billing/CartBottomSheet";
 import LoadingOverlay from "../components/billing/LoadingOverlay";
+
 import { Colors } from "../theme/colors";
 
 import useBilling from "../hooks/useBilling";
@@ -41,6 +44,7 @@ export default function BillingScreenV2() {
 
     increaseQuantity,
     decreaseQuantity,
+
     clearCart,
 
     generateBill,
@@ -48,6 +52,7 @@ export default function BillingScreenV2() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header */}
       <BillingHeader
         sendWhatsApp={sendWhatsApp}
         setSendWhatsApp={setSendWhatsApp}
@@ -58,13 +63,15 @@ export default function BillingScreenV2() {
         searchText={searchText}
         setSearchText={setSearchText}
       />
-      
+
+      {/* Categories */}
       <CategoryTabs
         categories={categories}
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
       />
-      
+
+      {/* Menu */}
       <View style={styles.menuContainer}>
         <MenuGrid
           menuItems={menuItems}
@@ -75,6 +82,7 @@ export default function BillingScreenV2() {
         />
       </View>
 
+      {/* Cart */}
       <CartBottomSheet
         cart={cart}
         increaseQuantity={increaseQuantity}
@@ -85,6 +93,7 @@ export default function BillingScreenV2() {
         generateBill={generateBill}
       />
 
+      {/* Loading */}
       <LoadingOverlay visible={loading} />
     </SafeAreaView>
   );
@@ -93,7 +102,6 @@ export default function BillingScreenV2() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
     backgroundColor: Colors.background,
   },
 

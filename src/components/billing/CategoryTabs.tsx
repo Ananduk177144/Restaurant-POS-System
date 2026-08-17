@@ -1,58 +1,35 @@
-import { ScrollView, TouchableOpacity, Text } from "react-native";
+import React from "react";
+import { ScrollView, TouchableOpacity, Text, StyleSheet } from "react-native";
+
 import { Colors } from "../../theme/colors";
 
 const categoryIcons: { [key: string]: string } = {
   All: "🍽",
-
   Beverages: "🥤",
   Drinks: "🥤",
-
   Breakfast: "🍳",
-
   Lunch: "🍱",
-
   Dinner: "🍽",
-
   Curry: "🍛",
-
   Snacks: "🍕",
-
   Dessert: "🍰",
-
   IceCream: "🍨",
-
   Coffee: "☕",
-
   Tea: "🫖",
-
   Juice: "🧃",
-
   Biriyani: "🍗",
-
   Biryani: "🍗",
-
   Meals: "🍛",
-
   FriedRice: "🍚",
-
   Chinese: "🥢",
-
   Burger: "🍔",
-
   Pizza: "🍕",
-
   Sandwich: "🥪",
-
   Chicken: "🍗",
-
   Beef: "🥩",
-
   Fish: "🐟",
-
   Mutton: "🍖",
-
   Veg: "🥗",
-
 };
 
 type CategoryTabsProps = {
@@ -70,83 +47,105 @@ export default function CategoryTabs({
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      style={{
-        backgroundColor: Colors.background,
-        maxHeight: 46, // 👈 Limits the total height
-        flexGrow: 0, // 👈 Prevents expansion
-      }}
-      contentContainerStyle={{
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        alignItems: "center", // 👈 Centers the pills vertically
-      }}
+      style={styles.container}
+      contentContainerStyle={styles.content}
     >
-      {/* All Category */}
+      {/* All */}
       <TouchableOpacity
+        activeOpacity={0.8}
         onPress={() => setSelectedCategory("All")}
-        style={{
-          backgroundColor: selectedCategory === "All" ? "#2563EB" : "#E5E7EB",
-
-          paddingHorizontal: 10,
-          height: 38,
-
-          justifyContent: "center",
-
-          alignItems: "center",
-
-          borderRadius: 18,
-
-          marginRight: 8,
-
-          flexDirection: "row",
-        }}
+        style={[
+          styles.category,
+          selectedCategory === "All" && styles.categorySelected,
+        ]}
       >
+        <Text style={styles.icon}>🍽</Text>
+
         <Text
-          style={{
-            color: selectedCategory === "All" ? "white" : "black",
-            fontWeight: "600",
-            fontSize: 13,
-          }}
+          style={[
+            styles.categoryText,
+            selectedCategory === "All" && styles.categoryTextSelected,
+          ]}
         >
-          🍽 All
+          All
         </Text>
       </TouchableOpacity>
 
-      {/* Dynamic Categories */}
-      {categories.map((category) => (
-        <TouchableOpacity
-          key={category.id}
-          onPress={() => setSelectedCategory(category.name)}
-          style={{
-            backgroundColor:
-              selectedCategory === category.name ? "#2563EB" : "#E5E7EB",
+      {/* Dynamic categories */}
+      {categories.map((category) => {
+        const selected = selectedCategory === category.name;
 
-            height: 32,
-
-            paddingHorizontal: 12,
-
-            borderRadius: 16,
-
-            justifyContent: "center",
-
-            alignItems: "center",
-
-            marginRight: 8,
-          }}
-        >
-          <Text
-            style={{
-              color: selectedCategory === category.name ? "white" : "black",
-
-              fontWeight: "bold",
-
-              fontSize: 13,
-            }}
+        return (
+          <TouchableOpacity
+            key={category.id}
+            activeOpacity={0.8}
+            onPress={() => setSelectedCategory(category.name)}
+            style={[styles.category, selected && styles.categorySelected]}
           >
-            {categoryIcons[category.name] || "🍴"} {category.name}
-          </Text>
-        </TouchableOpacity>
-      ))}
+            <Text style={styles.icon}>
+              {categoryIcons[category.name] || "🍴"}
+            </Text>
+
+            <Text
+              style={[
+                styles.categoryText,
+                selected && styles.categoryTextSelected,
+              ]}
+            >
+              {category.name}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: Colors.background,
+    maxHeight: 54,
+    flexGrow: 0,
+  },
+
+  content: {
+    paddingHorizontal: 15,
+    paddingVertical: 7,
+    alignItems: "center",
+  },
+
+  category: {
+    height: 38,
+    paddingHorizontal: 13,
+    borderRadius: 20,
+    backgroundColor: Colors.categoryBackground,
+    marginRight: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+
+  categorySelected: {
+    backgroundColor: Colors.selectedCategory,
+    borderColor: Colors.selectedCategory,
+    elevation: 3,
+  },
+
+  icon: {
+    fontSize: 15,
+    marginRight: 5,
+  },
+
+  categoryText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: Colors.textSecondary,
+  },
+
+  categoryTextSelected: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+  },
+});

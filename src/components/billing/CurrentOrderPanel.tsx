@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, TouchableOpacity, FlatList, Alert } from "react-native";
+
+import { View, Text, FlatList, StyleSheet } from "react-native";
 
 import CartItem from "./CartItem";
 import EmptyCart from "./EmptyCart";
@@ -17,59 +18,37 @@ export default function CurrentOrderPanel({
   cart,
   increaseQuantity,
   decreaseQuantity,
-  clearCart,
-  totalAmount,
 }: CurrentOrderPanelProps) {
-  const totalItems = cart.length;
-
-  const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
-
-  function confirmClearCart() {
-    Alert.alert("Clear Cart", "Are you sure you want to remove all items?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Clear",
-        style: "destructive",
-        onPress: clearCart,
-      },
-    ]);
-  }
-
   return (
-    <View
-      style={{
-        backgroundColor: Colors.background,
-        borderTopWidth: 1,
-        borderColor: Colors.border,
-        padding: 15,
-      }}
-    >
-      <Text
-        style={{
-          fontSize: 20,
-          fontWeight: "bold",
-          marginBottom: 10,
-        }}
-      >
-        🛒 Current Order
-      </Text>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <View style={styles.cartIcon}>
+            <Text style={styles.cartIconText}>🛒</Text>
+          </View>
+
+          <View>
+            <Text style={styles.title}>Current Order</Text>
+
+            <Text style={styles.subtitle}>
+              {cart.length} {cart.length === 1 ? "item" : "items"} added
+            </Text>
+          </View>
+        </View>
+      </View>
 
       {cart.length === 0 ? (
-        <EmptyCart />
+        <View style={styles.emptyContainer}>
+          <EmptyCart />
+        </View>
       ) : (
         <FlatList
           data={cart}
           keyExtractor={(item) => item.id.toString()}
-          style={{
-            maxHeight: 120,
-          }}
+          style={styles.list}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingBottom: 10,
-          }}
+          nestedScrollEnabled
+          contentContainerStyle={styles.listContent}
           renderItem={({ item }) => (
             <CartItem
               item={item}
@@ -79,65 +58,65 @@ export default function CurrentOrderPanel({
           )}
         />
       )}
-
-      <View
-        style={{
-          marginTop: 10,
-          borderTopWidth: 1,
-          borderColor: Colors.border,
-          paddingTop: 15,
-        }}
-      >
-        <Text
-          style={{
-            fontWeight: "bold",
-            fontSize: 16,
-          }}
-        >
-          Items : {totalItems}
-        </Text>
-
-        <Text
-          style={{
-            fontWeight: "bold",
-            fontSize: 16,
-            marginTop: 4,
-          }}
-        >
-          Quantity : {totalQuantity}
-        </Text>
-
-        <Text
-          style={{
-            fontWeight: "bold",
-            fontSize: 22,
-            color: Colors.primary,
-            marginTop: 10,
-          }}
-        >
-          Total : ₹ {totalAmount}
-        </Text>
-
-        <TouchableOpacity
-          onPress={confirmClearCart}
-          style={{
-            backgroundColor: Colors.background,
-            padding: 12,
-            borderRadius: 8,
-            marginTop: 15,
-          }}
-        >
-          <Text
-            style={{
-              color: Colors.text,
-              textAlign: "center",
-              fontWeight: "bold",
-            }}
-          >
-            Clear Cart
-          </Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: Colors.card,
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 4,
+  },
+
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 6,
+  },
+
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  cartIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 11,
+    backgroundColor: "#FFF3E6",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 9,
+  },
+
+  cartIconText: {
+    fontSize: 18,
+  },
+
+  title: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: Colors.heading,
+  },
+
+  subtitle: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginTop: 1,
+  },
+
+  list: {
+    maxHeight: 145,
+  },
+
+  listContent: {
+    paddingBottom: 2,
+  },
+
+  emptyContainer: {
+    paddingVertical: 8,
+  },
+});

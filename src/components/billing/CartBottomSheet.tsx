@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Animated } from "react-native";
+
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
 import CurrentOrderPanel from "./CurrentOrderPanel";
 import BillingFooter from "./BillingFooter";
@@ -33,75 +34,43 @@ export default function CartBottomSheet({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <View
-      style={{
-        backgroundColor: Colors.background,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        elevation: 12,
-        shadowColor: "#000",
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-      }}
-    >
+    <View style={[styles.container, expanded && styles.containerExpanded]}>
+      {/* Handle / Header */}
       <TouchableOpacity
+        activeOpacity={0.85}
         onPress={() => setExpanded(!expanded)}
-        style={{
-          padding: 15,
-        }}
+        style={styles.header}
       >
-        <View
-          style={{
-            alignItems: "center",
-            marginBottom: 10,
-          }}
-        >
-          <View
-            style={{
-              width: 50,
-              height: 5,
-              backgroundColor: Colors.border,
-              borderRadius: 10,
-            }}
-          />
+        <View style={styles.handle} />
+
+        <View style={styles.headerRow}>
+          <View style={styles.orderInfo}>
+            <View style={styles.orderIcon}>
+              <Text style={styles.orderIconText}>🛒</Text>
+            </View>
+
+            <View>
+              <Text style={styles.orderTitle}>Current Order</Text>
+
+              <Text style={styles.orderSubtitle}>
+                {cart.length} {cart.length === 1 ? "item" : "items"}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.amountContainer}>
+            <Text style={styles.amount}>₹ {totalAmount}</Text>
+
+            <Text style={styles.expandText}>
+              {expanded ? "Collapse ▲" : "View Order ▼"}
+            </Text>
+          </View>
         </View>
-
-        <Text
-          style={{
-            fontWeight: "bold",
-            fontSize: 18,
-          }}
-        >
-          🛒 Current Order ({cart.length})
-        </Text>
-
-        <Text
-          style={{
-            marginTop: 5,
-            color: Colors.text,
-            fontWeight: "bold",
-            fontSize: 20,
-          }}
-        >
-          ₹ {totalAmount}
-        </Text>
-
-        <Text
-          style={{
-            color: Colors.text,
-            marginTop: 5,
-          }}
-        >
-          {expanded ? "▼ Tap to Collapse" : "▲ Tap to Expand"}
-        </Text>
       </TouchableOpacity>
 
+      {/* Expanded content */}
       {expanded && (
-        <View
-          style={{
-            maxHeight: "75%",
-          }}
-        >
+        <View style={styles.expandedContent}>
           <CurrentOrderPanel
             cart={cart}
             increaseQuantity={increaseQuantity}
@@ -115,9 +84,105 @@ export default function CartBottomSheet({
             itemCount={cart.length}
             loading={loading}
             generateBill={generateBill}
+            clearCart={clearCart}
           />
         </View>
       )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: Colors.card,
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+    elevation: 16,
+
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    shadowOffset: {
+      width: 0,
+      height: -3,
+    },
+  },
+
+  containerExpanded: {
+    maxHeight: "62%",
+  },
+
+  header: {
+    paddingHorizontal: 14,
+    paddingTop: 7,
+    paddingBottom: 9,
+  },
+
+  handle: {
+    alignSelf: "center",
+    width: 42,
+    height: 4,
+    borderRadius: 5,
+    backgroundColor: Colors.border,
+    marginBottom: 8,
+  },
+
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  orderInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+
+  orderIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: "#FFF3E6",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 9,
+  },
+
+  orderIconText: {
+    fontSize: 19,
+  },
+
+  orderTitle: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: Colors.heading,
+  },
+
+  orderSubtitle: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+
+  amountContainer: {
+    alignItems: "flex-end",
+  },
+
+  amount: {
+    fontSize: 18,
+    fontWeight: "900",
+    color: Colors.primary,
+  },
+
+  expandText: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+
+  expandedContent: {
+    flexShrink: 1,
+  },
+});

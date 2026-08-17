@@ -1,4 +1,7 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import React from "react";
+
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+
 import { Colors } from "../../theme/colors";
 
 type Props = {
@@ -13,110 +16,114 @@ export default function CartItem({
   decreaseQuantity,
 }: Props) {
   return (
-    <View
-      style={{
-        marginBottom: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: Colors.border,
-        paddingBottom: 10,
-      }}
-    >
-      <Text
-        style={{
-          fontSize: 16,
-          fontWeight: "bold",
-        }}
-      >
-        {item.name}
-      </Text>
+    <View style={styles.container}>
+      <View style={styles.info}>
+        <Text numberOfLines={1} style={styles.name}>
+          {item.name}
+        </Text>
 
-      <Text
-        style={{
-          color: Colors.text,
-          marginTop: 4,
-        }}
-      >
-        ₹{item.price} × {item.quantity}
-      </Text>
+        <Text style={styles.price}>
+          ₹{item.price} × {item.quantity}
+        </Text>
+      </View>
 
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginTop: 10,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
+      <View style={styles.right}>
+        <View style={styles.quantityControl}>
           <TouchableOpacity
+            activeOpacity={0.7}
             onPress={() => decreaseQuantity(item.id)}
-            style={{
-              backgroundColor: Colors.background,
-              width: 35,
-              height: 35,
-              borderRadius: 18,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
+            style={styles.quantityButton}
           >
-            <Text
-              style={{
-                color: Colors.text,
-                fontWeight: "bold",
-                fontSize: 18,
-              }}
-            >
-              −
-            </Text>
+            <Text style={styles.quantityButtonText}>−</Text>
           </TouchableOpacity>
 
-          <Text
-            style={{
-              marginHorizontal: 15,
-              fontWeight: "bold",
-              fontSize: 18,
-            }}
-          >
-            {item.quantity}
-          </Text>
+          <Text style={styles.quantity}>{item.quantity}</Text>
 
           <TouchableOpacity
+            activeOpacity={0.7}
             onPress={() => increaseQuantity(item.id)}
-            style={{
-              backgroundColor: Colors.menu,
-              width: 35,
-              height: 35,
-              borderRadius: 18,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
+            style={[styles.quantityButton, styles.plusButton]}
           >
-            <Text
-              style={{
-                color: Colors.text,
-                fontWeight: "bold",
-                fontSize: 18,
-              }}
-            >
-              +
-            </Text>
+            <Text style={[styles.quantityButtonText, styles.plusText]}>+</Text>
           </TouchableOpacity>
         </View>
 
-        <Text
-          style={{
-            fontWeight: "bold",
-            fontSize: 16,
-          }}
-        >
-          ₹{item.price * item.quantity}
-        </Text>
+        <Text style={styles.total}>₹{item.price * item.quantity}</Text>
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+
+  info: {
+    flex: 1,
+    paddingRight: 8,
+  },
+
+  name: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: Colors.heading,
+  },
+
+  price: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginTop: 3,
+  },
+
+  right: {
+    alignItems: "flex-end",
+  },
+
+  quantityControl: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  quantityButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 9,
+    backgroundColor: "#F3F4F6",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  plusButton: {
+    backgroundColor: "#DCFCE7",
+  },
+
+  quantityButtonText: {
+    fontSize: 17,
+    fontWeight: "800",
+    color: Colors.text,
+  },
+
+  plusText: {
+    color: Colors.success,
+  },
+
+  quantity: {
+    fontSize: 14,
+    fontWeight: "800",
+    marginHorizontal: 9,
+    color: Colors.heading,
+  },
+
+  total: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: Colors.primary,
+    marginTop: 3,
+  },
+});

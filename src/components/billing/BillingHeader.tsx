@@ -1,4 +1,12 @@
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import React from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+
 import { Colors } from "../../theme/colors";
 
 type BillingHeaderProps = {
@@ -26,92 +34,286 @@ export default function BillingHeader({
   setSearchText,
 }: BillingHeaderProps) {
   return (
-    <View
-      style={{
-        backgroundColor: Colors.background,
-        paddingHorizontal: 15,
-        paddingTop: 10,
-        paddingBottom: 8,
-        borderBottomWidth: 1,
-        borderColor: Colors.border,
-      }}
-    >
-      <Text
-        style={{
-          fontSize: 28,
-          fontWeight: "bold",
-          marginBottom: 8,
-        }}
-      >
-        Create Bill
-      </Text>
+    <View style={styles.container}>
+      {/* Header title */}
+      <View style={styles.titleRow}>
+        <View style={styles.titleIcon}>
+          <Text style={styles.titleIconText}>🧾</Text>
+        </View>
 
+        <View>
+          <Text style={styles.title}>Create Bill</Text>
+          <Text style={styles.subtitle}>Add items and generate invoice</Text>
+        </View>
+      </View>
+
+      {/* WhatsApp Toggle */}
       <TouchableOpacity
+        activeOpacity={0.8}
         onPress={() => setSendWhatsApp(!sendWhatsApp)}
-        style={{
-          marginBottom: 8,
-        }}
+        style={[
+          styles.whatsappToggle,
+          sendWhatsApp && styles.whatsappToggleActive,
+        ]}
       >
-        <Text
-          style={{
-            fontSize: 16,
-            fontWeight: "bold",
-          }}
-        >
-          {sendWhatsApp
-            ? "☑ Send Invoice via WhatsApp"
-            : "☐ Send Invoice via WhatsApp"}
-        </Text>
-      </TouchableOpacity>
+        <View style={styles.whatsappLeft}>
+          <View
+            style={[
+              styles.whatsappIcon,
+              sendWhatsApp && styles.whatsappIconActive,
+            ]}
+          >
+            <Text style={styles.whatsappIconText}>💬</Text>
+          </View>
 
-      {sendWhatsApp && (
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginBottom: 8,
-          }}
-        >
-          <TextInput
-            placeholder="Customer Name"
-            value={customerName}
-            onChangeText={setCustomerName}
-            style={{
-              flex: 1,
-              borderWidth: 1,
-              borderRadius: 8,
-              height: 42,
-              paddingHorizontal: 12,
-              marginRight: 6,
-            }}
-          />
+          <View>
+            <Text style={styles.whatsappTitle}>WhatsApp Invoice</Text>
 
-          <TextInput
-            placeholder="Mobile Number"
-            keyboardType="phone-pad"
-            value={customerMobile}
-            onChangeText={setCustomerMobile}
-            style={{
-              flex: 1,
-              borderWidth: 1,
-              borderRadius: 8,
-              height: 42,
-              paddingHorizontal: 12,
-              marginLeft: 6,
-            }}
+            <Text style={styles.whatsappSubtitle}>
+              {sendWhatsApp
+                ? "Customer details required"
+                : "Send invoice to customer"}
+            </Text>
+          </View>
+        </View>
+
+        <View style={[styles.switch, sendWhatsApp && styles.switchActive]}>
+          <View
+            style={[
+              styles.switchThumb,
+              sendWhatsApp && styles.switchThumbActive,
+            ]}
           />
         </View>
+      </TouchableOpacity>
+
+      {/* Customer Details */}
+      {sendWhatsApp && (
+        <View style={styles.customerSection}>
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputIcon}>👤</Text>
+
+            <TextInput
+              placeholder="Customer name"
+              placeholderTextColor={Colors.textLight}
+              value={customerName}
+              onChangeText={setCustomerName}
+              style={styles.input}
+            />
+          </View>
+
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputIcon}>📱</Text>
+
+            <TextInput
+              placeholder="Mobile number"
+              placeholderTextColor={Colors.textLight}
+              keyboardType="phone-pad"
+              value={customerMobile}
+              onChangeText={setCustomerMobile}
+              style={styles.input}
+            />
+          </View>
+        </View>
       )}
-      <TextInput
-        placeholder="Search Menu Item..."
-        value={searchText}
-        onChangeText={setSearchText}
-        style={{
-          borderWidth: 1,
-          borderRadius: 8,
-          padding: 12,
-        }}
-      />
+
+      {/* Search */}
+      <View style={styles.searchContainer}>
+        <Text style={styles.searchIcon}>🔍</Text>
+
+        <TextInput
+          placeholder="Search menu items..."
+          placeholderTextColor={Colors.textLight}
+          value={searchText}
+          onChangeText={setSearchText}
+          style={styles.searchInput}
+        />
+
+        {searchText.length > 0 && (
+          <TouchableOpacity onPress={() => setSearchText("")}>
+            <Text style={styles.clearSearch}>✕</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: Colors.background,
+    paddingHorizontal: 15,
+    paddingTop: 10,
+    paddingBottom: 8,
+  },
+
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+
+  titleIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: Colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 10,
+  },
+
+  titleIconText: {
+    fontSize: 22,
+  },
+
+  title: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: Colors.heading,
+  },
+
+  subtitle: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 1,
+  },
+
+  whatsappToggle: {
+    minHeight: 52,
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: Colors.card,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+
+  whatsappToggleActive: {
+    borderColor: Colors.whatsapp,
+    backgroundColor: "#F0FDF4",
+  },
+
+  whatsappLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+
+  whatsappIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 11,
+    backgroundColor: "#F3F4F6",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 10,
+  },
+
+  whatsappIconActive: {
+    backgroundColor: "#DCFCE7",
+  },
+
+  whatsappIconText: {
+    fontSize: 18,
+  },
+
+  whatsappTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: Colors.heading,
+  },
+
+  whatsappSubtitle: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+
+  switch: {
+    width: 44,
+    height: 25,
+    borderRadius: 14,
+    backgroundColor: "#D1D5DB",
+    padding: 3,
+    justifyContent: "center",
+  },
+
+  switchActive: {
+    backgroundColor: Colors.whatsapp,
+  },
+
+  switchThumb: {
+    width: 19,
+    height: 19,
+    borderRadius: 10,
+    backgroundColor: "#FFFFFF",
+  },
+
+  switchThumbActive: {
+    alignSelf: "flex-end",
+  },
+
+  customerSection: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 8,
+  },
+
+  inputWrapper: {
+    flex: 1,
+    height: 42,
+    backgroundColor: Colors.card,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 11,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+  },
+
+  inputIcon: {
+    fontSize: 15,
+    marginRight: 6,
+  },
+
+  input: {
+    flex: 1,
+    fontSize: 13,
+    color: Colors.text,
+    paddingVertical: 0,
+  },
+
+  searchContainer: {
+    height: 44,
+    borderRadius: 13,
+    backgroundColor: Colors.searchBackground,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+  },
+
+  searchIcon: {
+    fontSize: 17,
+    marginRight: 8,
+  },
+
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: Colors.text,
+    paddingVertical: 0,
+  },
+
+  clearSearch: {
+    fontSize: 15,
+    color: Colors.textSecondary,
+    paddingLeft: 8,
+  },
+});
