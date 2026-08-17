@@ -1,4 +1,14 @@
-import { View, Text, TouchableOpacity, Alert, } from "react-native";
+import React from "react";
+
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
+
 import { supabase } from "../services/supabase";
 import { Colors } from "../theme/colors";
 
@@ -22,159 +32,523 @@ export default function DashboardScreen({ navigation }: any) {
       },
     ]);
   }
+
   return (
-    <View
-      style={{
-        flex: 1,
-        padding: 20,
-        justifyContent: "space-between",
-      }}
-    >
-      {/* Top Section */}
-      <View>
-        <Text
-          style={{
-            fontSize: 24,
-            color: Colors.heading,
-            fontWeight: "bold",
-          }}
-        >
-          Dashboard
-        </Text>
+    <View style={styles.container}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* ========================= */}
+        {/* HEADER */}
+        {/* ========================= */}
+
+        <View style={styles.header}>
+          <View style={styles.brandRow}>
+            <View style={styles.logoContainer}>
+              <Text style={styles.logo}>🍽️</Text>
+            </View>
+
+            <View>
+              <Text style={styles.restaurantName}>Restaurant POS</Text>
+
+              <Text style={styles.welcomeText}>Welcome back</Text>
+            </View>
+          </View>
+
+          <View style={styles.statusBadge}>
+            <View style={styles.statusDot} />
+
+            <Text style={styles.statusText}>Online</Text>
+          </View>
+        </View>
+
+        {/* ========================= */}
+        {/* WELCOME CARD */}
+        {/* ========================= */}
+
+        <View style={styles.welcomeCard}>
+          <View style={styles.welcomeContent}>
+            <Text style={styles.welcomeTitle}>Good to see you! 👋</Text>
+
+            <Text style={styles.welcomeSubtitle}>
+              Manage your restaurant operations from one place.
+            </Text>
+          </View>
+
+          <Text style={styles.welcomeEmoji}>🧑‍🍳</Text>
+        </View>
+
+        {/* ========================= */}
+        {/* QUICK ACTIONS */}
+        {/* ========================= */}
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+
+          <Text style={styles.sectionSubtitle}>Frequently used</Text>
+        </View>
+
+        <View style={styles.actionGrid}>
+          {/* Billing */}
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate("Billing")}
+            style={[styles.actionCard, styles.billingCard]}
+          >
+            <View style={[styles.actionIcon, styles.billingIcon]}>
+              <Text style={styles.actionEmoji}>🧾</Text>
+            </View>
+
+            <Text style={styles.actionTitle}>Billing</Text>
+
+            <Text style={styles.actionDescription}>Create a new bill</Text>
+
+            <View style={styles.arrow}>
+              <Text style={styles.arrowText}>→</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* View Menu */}
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate("MenuCategories")}
+            style={[styles.actionCard, styles.menuCard]}
+          >
+            <View style={[styles.actionIcon, styles.menuIcon]}>
+              <Text style={styles.actionEmoji}>🍽️</Text>
+            </View>
+
+            <Text style={styles.actionTitle}>View Menu</Text>
+
+            <Text style={styles.actionDescription}>Browse restaurant menu</Text>
+
+            <View style={styles.arrow}>
+              <Text style={styles.arrowText}>→</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* ========================= */}
+        {/* MANAGEMENT */}
+        {/* ========================= */}
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Management</Text>
+
+          <Text style={styles.sectionSubtitle}>Restaurant operations</Text>
+        </View>
 
         {/* Menu Management */}
         <TouchableOpacity
+          activeOpacity={0.85}
           onPress={() => navigation.navigate("MenuManagement")}
-          style={{
-            backgroundColor: Colors.accent,
-            padding: 15,
-            borderRadius: 10,
-          }}
+          style={styles.managementCard}
         >
-          <Text
-            style={{
-              color: Colors.buttonText,
-              textAlign: "center",
-              fontWeight: "bold",
-            }}
+          <View
+            style={[
+              styles.managementIcon,
+              {
+                backgroundColor: "#FFF3E6",
+              },
+            ]}
           >
-            Menu Management
-          </Text>
-        </TouchableOpacity>
+            <Text style={styles.managementEmoji}>📋</Text>
+          </View>
 
-        {/* Billing */}
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Billing")}
-          style={{
-            backgroundColor: Colors.billing,
-            padding: 15,
-            borderRadius: 10,
-            marginTop: 15,
-          }}
-        >
-          <Text
-            style={{
-              color: Colors.buttonText,
-              textAlign: "center",
-              fontWeight: "bold",
-            }}
-          >
-            Billing
-          </Text>
-        </TouchableOpacity>
+          <View style={styles.managementContent}>
+            <Text style={styles.managementTitle}>Menu Management</Text>
 
-        {/* View Menu */}
-        <TouchableOpacity
-          onPress={() => navigation.navigate("MenuCategories")}
-          style={{
-            backgroundColor: Colors.menu,
-            padding: 15,
-            borderRadius: 10,
-            marginTop: 15,
-          }}
-        >
-          <Text
-            style={{
-              color: Colors.buttonText,
-              textAlign: "center",
-              fontWeight: "bold",
-            }}
-          >
-            <Text
-              style={{
-                color: Colors.buttonText,
-                textAlign: "center",
-                fontWeight: "bold",
-              }}
-            >
-              🍽 View Menu
+            <Text style={styles.managementDescription}>
+              Add, edit and manage menu items
             </Text>
-          </Text>
+          </View>
+
+          <Text style={styles.managementArrow}>→</Text>
         </TouchableOpacity>
 
         {/* Bill History */}
         <TouchableOpacity
+          activeOpacity={0.85}
           onPress={() => navigation.navigate("BillHistory")}
-          style={{
-            backgroundColor: Colors.billing,
-            padding: 15,
-            borderRadius: 10,
-            marginTop: 15,
-          }}
+          style={styles.managementCard}
         >
-          <Text
-            style={{
-              color: Colors.buttonText,
-              textAlign: "center",
-              fontWeight: "bold",
-            }}
+          <View
+            style={[
+              styles.managementIcon,
+              {
+                backgroundColor: "#EFF6FF",
+              },
+            ]}
           >
-            Bill History
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("SalesDashboard")}
-          style={{
-            backgroundColor: Colors.primary,
-            padding: 15,
-            borderRadius: 10,
-            marginTop: 15,
-          }}
-        >
-          <Text
-            style={{
-              color: Colors.buttonText,
-              textAlign: "center",
-              fontWeight: "bold",
-            }}
-          >
-            Sales Dashboard
-          </Text>
-        </TouchableOpacity>
-      </View>
+            <Text style={styles.managementEmoji}>📜</Text>
+          </View>
 
-      {/* Bottom Logout Button */}
-      <TouchableOpacity
-        onPress={logout}
-        style={{
-          backgroundColor: Colors.logout,
-          padding: 15,
-          borderRadius: 10,
-          alignSelf: "center",
-          width: "70%",
-          marginBottom: 20,
-        }}
-      >
-        <Text
-          style={{
-            color: Colors.buttonText,
-            textAlign: "center",
-            fontWeight: "bold",
-            fontSize: 16,
-          }}
+          <View style={styles.managementContent}>
+            <Text style={styles.managementTitle}>Bill History</Text>
+
+            <Text style={styles.managementDescription}>
+              View previous restaurant bills
+            </Text>
+          </View>
+
+          <Text style={styles.managementArrow}>→</Text>
+        </TouchableOpacity>
+
+        {/* Sales Dashboard */}
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={() => navigation.navigate("SalesDashboard")}
+          style={styles.managementCard}
         >
-          Logout
-        </Text>
-      </TouchableOpacity>
+          <View
+            style={[
+              styles.managementIcon,
+              {
+                backgroundColor: "#F0FDF4",
+              },
+            ]}
+          >
+            <Text style={styles.managementEmoji}>📊</Text>
+          </View>
+
+          <View style={styles.managementContent}>
+            <Text style={styles.managementTitle}>Sales Dashboard</Text>
+
+            <Text style={styles.managementDescription}>
+              Monitor restaurant sales
+            </Text>
+          </View>
+
+          <Text style={styles.managementArrow}>→</Text>
+        </TouchableOpacity>
+
+        {/* ========================= */}
+        {/* LOGOUT */}
+        {/* ========================= */}
+
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={logout}
+          style={styles.logoutButton}
+        >
+          <Text style={styles.logoutIcon}>↪</Text>
+
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.versionText}>Restaurant POS • Version 1.0.0</Text>
+      </ScrollView>
     </View>
-  );}
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 30,
+  },
+
+  /* ========================= */
+  /* HEADER */
+  /* ========================= */
+
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 18,
+  },
+
+  brandRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  logoContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 15,
+    backgroundColor: Colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 11,
+    elevation: 3,
+  },
+
+  logo: {
+    fontSize: 24,
+  },
+
+  restaurantName: {
+    fontSize: 20,
+    fontWeight: "900",
+    color: Colors.heading,
+  },
+
+  welcomeText: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+
+  statusBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#DCFCE7",
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+
+  statusDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: Colors.success,
+    marginRight: 5,
+  },
+
+  statusText: {
+    color: Colors.success,
+    fontSize: 11,
+    fontWeight: "800",
+  },
+
+  /* ========================= */
+  /* WELCOME CARD */
+  /* ========================= */
+
+  welcomeCard: {
+    backgroundColor: Colors.primary,
+    borderRadius: 20,
+    padding: 18,
+    minHeight: 115,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 22,
+    overflow: "hidden",
+    elevation: 5,
+  },
+
+  welcomeContent: {
+    flex: 1,
+    paddingRight: 10,
+  },
+
+  welcomeTitle: {
+    color: "#FFFFFF",
+    fontSize: 20,
+    fontWeight: "900",
+  },
+
+  welcomeSubtitle: {
+    color: "#F8EDE5",
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: 6,
+  },
+
+  welcomeEmoji: {
+    fontSize: 58,
+  },
+
+  /* ========================= */
+  /* SECTIONS */
+  /* ========================= */
+
+  sectionHeader: {
+    marginBottom: 10,
+    marginTop: 2,
+  },
+
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "900",
+    color: Colors.heading,
+  },
+
+  sectionSubtitle: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+
+  /* ========================= */
+  /* QUICK ACTIONS */
+  /* ========================= */
+
+  actionGrid: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 22,
+  },
+
+  actionCard: {
+    width: "48.5%",
+    backgroundColor: Colors.card,
+    borderRadius: 17,
+    padding: 13,
+    minHeight: 160,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    elevation: 3,
+  },
+
+  billingCard: {
+    borderTopWidth: 3,
+    borderTopColor: Colors.billing,
+  },
+
+  menuCard: {
+    borderTopWidth: 3,
+    borderTopColor: Colors.menu,
+  },
+
+  actionIcon: {
+    width: 45,
+    height: 45,
+    borderRadius: 14,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+
+  billingIcon: {
+    backgroundColor: "#EFF6FF",
+  },
+
+  menuIcon: {
+    backgroundColor: "#F0FDF4",
+  },
+
+  actionEmoji: {
+    fontSize: 23,
+  },
+
+  actionTitle: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: Colors.heading,
+  },
+
+  actionDescription: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginTop: 4,
+    lineHeight: 16,
+  },
+
+  arrow: {
+    position: "absolute",
+    right: 12,
+    bottom: 12,
+    width: 27,
+    height: 27,
+    borderRadius: 9,
+    backgroundColor: "#F3F4F6",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  arrowText: {
+    fontSize: 17,
+    fontWeight: "800",
+    color: Colors.heading,
+  },
+
+  /* ========================= */
+  /* MANAGEMENT */
+  /* ========================= */
+
+  managementCard: {
+    backgroundColor: Colors.card,
+    borderRadius: 16,
+    minHeight: 70,
+    padding: 11,
+    marginBottom: 9,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    flexDirection: "row",
+    alignItems: "center",
+    elevation: 2,
+  },
+
+  managementIcon: {
+    width: 47,
+    height: 47,
+    borderRadius: 14,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 11,
+  },
+
+  managementEmoji: {
+    fontSize: 23,
+  },
+
+  managementContent: {
+    flex: 1,
+  },
+
+  managementTitle: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: Colors.heading,
+  },
+
+  managementDescription: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginTop: 3,
+  },
+
+  managementArrow: {
+    fontSize: 21,
+    fontWeight: "700",
+    color: Colors.textSecondary,
+    paddingHorizontal: 6,
+  },
+
+  /* ========================= */
+  /* LOGOUT */
+  /* ========================= */
+
+  logoutButton: {
+    height: 48,
+    borderRadius: 13,
+    backgroundColor: "#FEF2F2",
+    borderWidth: 1,
+    borderColor: "#FECACA",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    marginTop: 15,
+  },
+
+  logoutIcon: {
+    fontSize: 19,
+    color: Colors.logout,
+    marginRight: 7,
+  },
+
+  logoutText: {
+    color: Colors.logout,
+    fontSize: 14,
+    fontWeight: "800",
+  },
+
+  versionText: {
+    textAlign: "center",
+    fontSize: 10,
+    color: Colors.textLight,
+    marginTop: 13,
+  },
+});
