@@ -1,57 +1,92 @@
 // src/theme/colors.ts
 
 export const Colors = {
-  // =========================
+  // ==========================================
   // BRAND COLORS
-  // =========================
-  primary: "#7B4A2E",
-  primaryDark: "#5D351F",
-  secondary: "#2E7D32",
-  accent: "#F5AD29",
+  // ==========================================
 
-  billing: "#2563EB",
-  menu: "#16A34A",
-  logout: "#DC2626",
-  category: "#2563EB",
+  primary: "#2E7D5B",
+  primaryDark: "#246348",
 
-  // =========================
+  secondary: "#66BB6A",
+
+  // Soft natural highlight
+  accent: "#A5D6A7",
+
+  // Billing
+  billing: "#43A047",
+
+  // Menu
+  menu: "#66BB6A",
+
+  // Logout
+  logout: "#E53935",
+
+  // Category
+  category: "#81C784",
+
+  // ==========================================
   // BACKGROUNDS
-  // =========================
-  background: "#FFF8F0",
-  surface: "#F8FAFC",
+  // ==========================================
+
+  // Main application background
+  background: "#edf7f0",
+
+  // Slightly elevated surface
+  surface: "#FFFFFF",
+
+  // Cards
   card: "#FFFFFF",
 
-  // =========================
+  // ==========================================
   // TEXT
-  // =========================
-  heading: "#1F2937",
-  text: "#111827",
-  textSecondary: "#6B7280",
-  textLight: "#9CA3AF",
+  // ==========================================
 
-  // =========================
+  // Main headings
+  heading: "#1B4332",
+
+  // Normal text
+  text: "#263A32",
+
+  // Secondary text
+  textSecondary: "#60756B",
+
+  // Light / muted text
+  textLight: "#94A69D",
+
+  // ==========================================
   // BUTTONS
-  // =========================
+  // ==========================================
+
   buttonText: "#FFFFFF",
 
-  // =========================
-  // STATUS
-  // =========================
-  success: "#16A34A",
-  warning: "#F59E0B",
-  danger: "#DC2626",
+  // ==========================================
+  // STATUS COLORS
+  // ==========================================
 
-  // =========================
+  success: "#43A047",
+
+  warning: "#F9A825",
+
+  danger: "#E53935",
+
+  // ==========================================
+  // SOFT STATUS BACKGROUNDS
+  // ==========================================
+
+  softGreen: "#E8F5E9",
+
+  softMint: "#EAF7EE",
+
+  softYellow: "#FFF8E1",
+
+  softRed: "#FFEBEE",
+
+  // ==========================================
   // MISC
-  // =========================
-  border: "#E5E7EB",
-  icon: "#374151",
+  // ==========================================
 
-  // Additional UI colors
-  searchBackground: "#FFFFFF",
-  categoryBackground: "#F1F5F9",
-  selectedCategory: "#2563EB",
-  cartBackground: "#FFFFFF",
-  whatsapp: "#25D366",
-  price: "#15803D",
+  border: "#DCE9E0",
+
+  icon: "#48665A",
 };

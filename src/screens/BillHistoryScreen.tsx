@@ -1,17 +1,24 @@
-import { useEffect, useState } from "react";
-import { View, Text, FlatList, TouchableOpacity } from "react-native";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  RefreshControl,
+} from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 
 import { supabase } from "../services/supabase";
 import { Colors } from "../theme/colors";
 
-export default function BillHistoryScreen({
-  navigation,
-}: any) {
+export default function BillHistoryScreen({ navigation }: any) {
   const [bills, setBills] = useState<any[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   async function fetchBills() {
+    setRefreshing(true);
+
     const { data, error } = await supabase
       .from("bills")
       .select("*")
@@ -19,10 +26,12 @@ export default function BillHistoryScreen({
 
     if (error) {
       console.log(error);
+      setRefreshing(false);
       return;
     }
 
     setBills(data || []);
+    setRefreshing(false);
   }
 
   useFocusEffect(
@@ -30,91 +39,362 @@ export default function BillHistoryScreen({
       fetchBills();
     }, []),
   );
+
+  function formatDate(dateString: string) {
+    if (!dateString) return "Date unavailable";
+
+    const date = new Date(dateString);
+
+    return date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
+  function formatTime(dateString: string) {
+    if (!dateString) return "";
+
+    const date = new Date(dateString);
+
+    return date.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
   return (
-    <FlatList
-      data={bills}
-      keyExtractor={(item) => item.id.toString()}
-      contentContainerStyle={{
-        flexGrow: 1,
-        padding: 20,
-      }}
-      renderItem={({ item }) => (
-        <View
-          style={{
-            borderWidth: 1,
-            padding: 15,
-            borderRadius: 10,
-            marginBottom: 12,
-          }}
-        >
-          <Text
-            style={{
-              fontWeight: "bold",
-              fontSize: 18,
-            }}
-          >
-            Bill No: {item.bill_number}
-          </Text>
+    <View style={styles.container}>
+      <FlatList
+        data={bills}
+        keyExtractor={(item) => item.id.toString()}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={fetchBills} />
+        }
+        contentContainerStyle={[
+          styles.listContent,
+          bills.length === 0 && styles.emptyList,
+        ]}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <View>
+              <Text style={styles.title}>Bill History</Text>
 
-          <Text>Customer: {item.customer_name || "Walk-In"}</Text>
+              <Text style={styles.subtitle}>
+                View and manage your previous bills
+              </Text>
+            </View>
 
-          <Text>Total: ₹{item.total_amount}</Text>
+            <View style={styles.countBadge}>
+              <Text style={styles.countText}>{bills.length}</Text>
+            </View>
+          </View>
+        }
+        renderItem={({ item }) => (
+          <View style={styles.billCard}>
+            {/* Top Section */}
+            <View style={styles.cardTop}>
+              <View style={styles.billIcon}>
+                <Text style={styles.billIconText}>🧾</Text>
+              </View>
 
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate("BillDetails", {
-                billId: item.id,
-              })
-            }
-            style={{
-              backgroundColor: Colors.billing,
-              padding: 10,
-              borderRadius: 8,
-              marginTop: 10,
-            }}
-          >
-            <Text
-              style={{
-                color: Colors.text,
-                textAlign: "center",
-                fontWeight: "bold",
-              }}
+              <View style={styles.billInfo}>
+                <Text style={styles.billNumber}>Bill #{item.bill_number}</Text>
+
+                <Text style={styles.dateText}>
+                  {formatDate(item.created_at)}
+                  {item.created_at ? ` • ${formatTime(item.created_at)}` : ""}
+                </Text>
+              </View>
+
+              <View style={styles.amountContainer}>
+                <Text style={styles.amountLabel}>TOTAL</Text>
+
+                <Text style={styles.amount}>
+                  ₹ {Number(item.total_amount).toFixed(2)}
+                </Text>
+              </View>
+            </View>
+
+            {/* Customer */}
+            <View style={styles.customerSection}>
+              <Text style={styles.customerLabel}>CUSTOMER</Text>
+
+              <Text style={styles.customerName}>
+                {item.customer_name || "Walk-In Customer"}
+              </Text>
+            </View>
+
+            {/* Divider */}
+            <View style={styles.divider} />
+
+            {/* Action */}
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() =>
+                navigation.navigate("BillDetails", {
+                  billId: item.id,
+                })
+              }
+              style={styles.viewButton}
             >
-              View Details
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
-      ListEmptyComponent={
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            marginTop: 80,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              color: "#6B7280",
-            }}
-          >
-            📄 No Bills Found
-          </Text>
+              <Text style={styles.viewButtonIcon}>📄</Text>
 
-          <Text
-            style={{
-              marginTop: 10,
-              color: "#9CA3AF",
-              fontSize: 15,
-            }}
-          >
-            Generate your first bill to see it here.
-          </Text>
-        </View>
-      }
-    />
+              <Text style={styles.viewButtonText}>View Bill Details</Text>
+
+              <Text style={styles.arrow}>›</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <View style={styles.emptyIcon}>
+              <Text style={styles.emptyIconText}>🧾</Text>
+            </View>
+
+            <Text style={styles.emptyTitle}>No Bills Found</Text>
+
+            <Text style={styles.emptySubtitle}>
+              Generate your first bill to see your billing history here.
+            </Text>
+          </View>
+        }
+      />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+
+  listContent: {
+    padding: 18,
+    paddingBottom: 35,
+  },
+
+  emptyList: {
+    flexGrow: 1,
+  },
+
+  // =========================
+  // HEADER
+  // =========================
+
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 18,
+  },
+
+  title: {
+    fontSize: 28,
+    fontWeight: "900",
+    color: Colors.heading,
+  },
+
+  subtitle: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    marginTop: 4,
+  },
+
+  countBadge: {
+    minWidth: 42,
+    height: 42,
+    paddingHorizontal: 10,
+    borderRadius: 21,
+    backgroundColor: Colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  countText: {
+    color: Colors.buttonText,
+    fontSize: 16,
+    fontWeight: "800",
+  },
+
+  // =========================
+  // BILL CARD
+  // =========================
+
+  billCard: {
+    backgroundColor: Colors.card,
+    borderRadius: 16,
+    padding: 15,
+    marginBottom: 14,
+
+    borderWidth: 1,
+    borderColor: Colors.border,
+
+    elevation: 3,
+
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+  },
+
+  cardTop: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  billIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: 13,
+    backgroundColor: "#EAF7F0",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 11,
+  },
+
+  billIconText: {
+    fontSize: 22,
+  },
+
+  billInfo: {
+    flex: 1,
+  },
+
+  billNumber: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: Colors.heading,
+  },
+
+  dateText: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginTop: 4,
+  },
+
+  amountContainer: {
+    alignItems: "flex-end",
+    marginLeft: 8,
+  },
+
+  amountLabel: {
+    fontSize: 9,
+    fontWeight: "700",
+    color: Colors.textSecondary,
+    letterSpacing: 0.5,
+  },
+
+  amount: {
+    fontSize: 17,
+    fontWeight: "900",
+    color: Colors.primary,
+    marginTop: 2,
+  },
+
+  // =========================
+  // CUSTOMER
+  // =========================
+
+  customerSection: {
+    marginTop: 14,
+    backgroundColor: Colors.surface,
+    borderRadius: 10,
+    padding: 10,
+  },
+
+  customerLabel: {
+    fontSize: 9,
+    fontWeight: "800",
+    color: Colors.textSecondary,
+    letterSpacing: 0.6,
+  },
+
+  customerName: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: Colors.heading,
+    marginTop: 3,
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: Colors.border,
+    marginVertical: 12,
+  },
+
+  // =========================
+  // VIEW BUTTON
+  // =========================
+
+  viewButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.primary,
+    borderRadius: 10,
+    minHeight: 42,
+    paddingHorizontal: 12,
+  },
+
+  viewButtonIcon: {
+    fontSize: 15,
+    marginRight: 7,
+  },
+
+  viewButtonText: {
+    flex: 1,
+    color: Colors.buttonText,
+    fontSize: 14,
+    fontWeight: "800",
+  },
+
+  arrow: {
+    color: Colors.buttonText,
+    fontSize: 25,
+    fontWeight: "300",
+    lineHeight: 25,
+  },
+
+  // =========================
+  // EMPTY STATE
+  // =========================
+
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 35,
+  },
+
+  emptyIcon: {
+    width: 82,
+    height: 82,
+    borderRadius: 41,
+    backgroundColor: "#EAF7F0",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 18,
+  },
+
+  emptyIconText: {
+    fontSize: 38,
+  },
+
+  emptyTitle: {
+    fontSize: 21,
+    fontWeight: "800",
+    color: Colors.heading,
+  },
+
+  emptySubtitle: {
+    textAlign: "center",
+    fontSize: 14,
+    color: Colors.textSecondary,
+    lineHeight: 21,
+    marginTop: 7,
+  },
+});

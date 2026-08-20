@@ -18,9 +18,12 @@ export default function CurrentOrderPanel({
   cart,
   increaseQuantity,
   decreaseQuantity,
+  clearCart,
+  totalAmount
 }: CurrentOrderPanelProps) {
   return (
     <View style={styles.container}>
+      {/* Order Items Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.cartIcon}>
@@ -28,7 +31,7 @@ export default function CurrentOrderPanel({
           </View>
 
           <View>
-            <Text style={styles.title}>Current Order</Text>
+            <Text style={styles.title}>Order Items</Text>
 
             <Text style={styles.subtitle}>
               {cart.length} {cart.length === 1 ? "item" : "items"} added
@@ -37,6 +40,7 @@ export default function CurrentOrderPanel({
         </View>
       </View>
 
+      {/* Cart Items */}
       {cart.length === 0 ? (
         <View style={styles.emptyContainer}>
           <EmptyCart />
@@ -66,15 +70,15 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.card,
     paddingHorizontal: 14,
-    paddingTop: 10,
-    paddingBottom: 4,
+    paddingTop: 6,
+    paddingBottom: 2,
   },
 
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 6,
+    marginBottom: 5,
   },
 
   headerLeft: {
@@ -83,27 +87,27 @@ const styles = StyleSheet.create({
   },
 
   cartIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 11,
-    backgroundColor: "#FFF3E6",
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: "#EAF7F0",
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 9,
+    marginRight: 8,
   },
 
   cartIconText: {
-    fontSize: 18,
+    fontSize: 16,
   },
 
   title: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "800",
     color: Colors.heading,
   },
 
   subtitle: {
-    fontSize: 11,
+    fontSize: 10,
     color: Colors.textSecondary,
     marginTop: 1,
   },
