@@ -1,19 +1,19 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useEffect, useState } from "react";
 
 import LoginScreen from "../screens/LoginScreen";
 import DashboardScreen from "../screens/DashboardScreen";
 import MenuManagementScreen from "../screens/MenuManagementScreen";
 import MenuItemsScreen from "../screens/MenuItemsScreen";
-import BillingScreen from "../screens/BillingScreenV2";
+import BillingScreenV2 from "../screens/BillingScreenV2";
 import BillHistoryScreen from "../screens/BillHistoryScreen";
 import BillDetailsScreen from "../screens/BillDetailsScreen";
-import { useEffect, useState } from "react";
-import { supabase } from "../services/supabase";
 import SalesDashboardScreen from "../screens/SalesDashboardScreen";
-import BillingScreenV2 from "../screens/BillingScreenV2";
 import MenuCategoriesScreen from "../screens/MenuCategoriesScreen";
 import MenuItemsViewScreen from "../screens/MenuItemsViewScreen";
+
+import { supabase } from "../services/supabase";
 
 const Stack = createNativeStackNavigator();
 
@@ -72,10 +72,12 @@ export default function AppNavigator() {
             <Stack.Screen name="BillHistory" component={BillHistoryScreen} />
 
             <Stack.Screen name="BillDetails" component={BillDetailsScreen} />
+
             <Stack.Screen
               name="SalesDashboard"
               component={SalesDashboardScreen}
             />
+
             <Stack.Screen
               name="MenuCategories"
               component={MenuCategoriesScreen}

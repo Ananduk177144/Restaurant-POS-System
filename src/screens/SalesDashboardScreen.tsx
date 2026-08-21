@@ -6,13 +6,13 @@ import {
   ScrollView,
   RefreshControl,
   StyleSheet,
-  ActivityIndicator,
 } from "react-native";
 
 import { supabase } from "../services/supabase";
 import { Colors } from "../theme/colors";
+import BackButton from "../components/BackButton";
 
-export default function SalesDashboardScreen() {
+export default function SalesDashboardScreen({ navigation }: any) {
   const [todaySales, setTodaySales] = useState(0);
   const [billCount, setBillCount] = useState(0);
   const [averageBill, setAverageBill] = useState(0);
@@ -20,6 +20,10 @@ export default function SalesDashboardScreen() {
   const [lowestBill, setLowestBill] = useState(0);
 
   const [refreshing, setRefreshing] = useState(false);
+
+  // ==========================================
+  // FETCH SALES
+  // ==========================================
 
   async function fetchSales() {
     setRefreshing(true);
@@ -51,7 +55,7 @@ export default function SalesDashboardScreen() {
 
     const totals = data.map((bill) => Number(bill.total_amount));
 
-    const total = totals.reduce((a, b) => a + b, 0);
+    const total = totals.reduce((sum, amount) => sum + amount, 0);
 
     setTodaySales(total);
     setBillCount(totals.length);
@@ -62,11 +66,19 @@ export default function SalesDashboardScreen() {
     setRefreshing(false);
   }
 
+  // ==========================================
+  // INITIAL LOAD
+  // ==========================================
+
   useEffect(() => {
     fetchSales();
   }, []);
 
   const today = new Date();
+
+  // ==========================================
+  // UI
+  // ==========================================
 
   return (
     <ScrollView
@@ -81,27 +93,31 @@ export default function SalesDashboardScreen() {
         />
       }
     >
-      {/* ========================= */}
-      {/* HEADER */}
-      {/* ========================= */}
+      {/* ======================================
+          HEADER
+      ====================================== */}
 
       <View style={styles.header}>
-        <View style={styles.headerIcon}>
-          <Text style={styles.headerEmoji}>📊</Text>
-        </View>
+        <BackButton navigation={navigation} />
 
-        <View style={styles.headerText}>
-          <Text style={styles.title}>Sales Dashboard</Text>
+        <View style={styles.headerTitleContainer}>
+          <View style={styles.headerIcon}>
+            <Text style={styles.headerEmoji}>📊</Text>
+          </View>
 
-          <Text style={styles.subtitle}>
-            Track today's restaurant performance
-          </Text>
+          <View style={styles.headerText}>
+            <Text style={styles.title}>Sales Dashboard</Text>
+
+            <Text style={styles.subtitle}>
+              Track today's restaurant performance
+            </Text>
+          </View>
         </View>
       </View>
 
-      {/* ========================= */}
-      {/* DATE CARD */}
-      {/* ========================= */}
+      {/* ======================================
+          DATE CARD
+      ====================================== */}
 
       <View style={styles.dateCard}>
         <View style={styles.dateIcon}>
@@ -121,9 +137,9 @@ export default function SalesDashboardScreen() {
         </View>
       </View>
 
-      {/* ========================= */}
-      {/* MAIN SALES CARD */}
-      {/* ========================= */}
+      {/* ======================================
+          MAIN SALES CARD
+      ====================================== */}
 
       <View style={styles.salesCard}>
         <View style={styles.salesCardTop}>
@@ -151,9 +167,9 @@ export default function SalesDashboardScreen() {
         </View>
       </View>
 
-      {/* ========================= */}
-      {/* SECTION HEADER */}
-      {/* ========================= */}
+      {/* ======================================
+          SECTION HEADER
+      ====================================== */}
 
       <View style={styles.sectionHeader}>
         <View>
@@ -163,9 +179,9 @@ export default function SalesDashboardScreen() {
         </View>
       </View>
 
-      {/* ========================= */}
-      {/* STAT GRID */}
-      {/* ========================= */}
+      {/* ======================================
+          STAT GRID
+      ====================================== */}
 
       <View style={styles.statGrid}>
         {/* Bills */}
@@ -217,9 +233,9 @@ export default function SalesDashboardScreen() {
         </View>
       </View>
 
-      {/* ========================= */}
-      {/* EMPTY STATE */}
-      {/* ========================= */}
+      {/* ======================================
+          EMPTY STATE
+      ====================================== */}
 
       {billCount === 0 && (
         <View style={styles.emptyCard}>
@@ -236,9 +252,9 @@ export default function SalesDashboardScreen() {
         </View>
       )}
 
-      {/* ========================= */}
-      {/* FOOTER */}
-      {/* ========================= */}
+      {/* ======================================
+          FOOTER
+      ====================================== */}
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>Pull down to refresh sales data</Text>
@@ -247,9 +263,9 @@ export default function SalesDashboardScreen() {
   );
 }
 
-/* ================================= */
-/* STYLES */
-/* ================================= */
+// ==========================================
+// STYLES
+// ==========================================
 
 const styles = StyleSheet.create({
   screen: {
@@ -262,14 +278,22 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
 
-  /* ========================= */
-  /* HEADER */
-  /* ========================= */
+  // ========================================
+  // HEADER
+  // ========================================
 
   header: {
-    flexDirection: "row",
+    height: 72,
+    position: "relative",
+    justifyContent: "center",
     alignItems: "center",
     marginBottom: 15,
+  },
+
+  headerTitleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   headerIcon: {
@@ -287,7 +311,7 @@ const styles = StyleSheet.create({
   },
 
   headerText: {
-    flex: 1,
+    alignItems: "center",
   },
 
   title: {
@@ -302,9 +326,9 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  /* ========================= */
-  /* DATE */
-  /* ========================= */
+  // ========================================
+  // DATE
+  // ========================================
 
   dateCard: {
     backgroundColor: Colors.card,
@@ -368,9 +392,9 @@ const styles = StyleSheet.create({
     color: Colors.success,
   },
 
-  /* ========================= */
-  /* SALES CARD */
-  /* ========================= */
+  // ========================================
+  // SALES CARD
+  // ========================================
 
   salesCard: {
     backgroundColor: Colors.primary,
@@ -436,9 +460,9 @@ const styles = StyleSheet.create({
     fontWeight: "900",
   },
 
-  /* ========================= */
-  /* SECTION */
-  /* ========================= */
+  // ========================================
+  // SECTION
+  // ========================================
 
   sectionHeader: {
     marginBottom: 10,
@@ -456,9 +480,9 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  /* ========================= */
-  /* STAT GRID */
-  /* ========================= */
+  // ========================================
+  // STAT GRID
+  // ========================================
 
   statGrid: {
     flexDirection: "row",
@@ -519,9 +543,9 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 
-  /* ========================= */
-  /* EMPTY */
-  /* ========================= */
+  // ========================================
+  // EMPTY
+  // ========================================
 
   emptyCard: {
     backgroundColor: Colors.card,
@@ -561,9 +585,9 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
 
-  /* ========================= */
-  /* FOOTER */
-  /* ========================= */
+  // ========================================
+  // FOOTER
+  // ========================================
 
   footer: {
     alignItems: "center",

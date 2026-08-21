@@ -7,19 +7,58 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
+  StyleSheet,
 } from "react-native";
-import { Colors } from "../theme/colors";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function MenuItemsScreen({ route }: any) {
-  const { categoryId, categoryName } = route.params;
+import { Colors } from "../theme/colors";
+import BackButton from "../components/BackButton";
+
+export default function MenuItemsScreen({ route, navigation }: any) {
+  const { categoryId, categoryName } = route.params || {};
+
+  if (!categoryId) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <BackButton navigation={navigation} />
+
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 20,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "800",
+              color: Colors.heading,
+              textAlign: "center",
+            }}
+          >
+            Category information is missing
+          </Text>
+
+          <Text
+            style={{
+              marginTop: 8,
+              fontSize: 12,
+              color: Colors.textSecondary,
+              textAlign: "center",
+            }}
+          >
+            Please go back and select a category again.
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const [itemName, setItemName] = useState("");
   const [price, setPrice] = useState("");
   const [menuItems, setMenuItems] = useState<any[]>([]);
-
-  // ==========================================
-  // ADD MENU ITEM
-  // ==========================================
 
   async function addMenuItem() {
     if (!itemName.trim()) {
@@ -32,17 +71,10 @@ export default function MenuItemsScreen({ route }: any) {
       return;
     }
 
-    const numericPrice = Number(price);
-
-    if (isNaN(numericPrice) || numericPrice <= 0) {
-      Alert.alert("Validation", "Enter a valid price");
-      return;
-    }
-
     const { error } = await supabase.from("menu_items").insert({
       category_id: categoryId,
       name: itemName.trim(),
-      price: numericPrice,
+      price: Number(price),
       is_available: true,
     });
 
@@ -51,18 +83,13 @@ export default function MenuItemsScreen({ route }: any) {
       return;
     }
 
-    Alert.alert("Success", "Menu Item Added");
-
     setItemName("");
     setPrice("");
 
     fetchMenuItems();
-  }
 
-  // ==========================================
-  // FETCH MENU ITEMS
-  // NEWEST ITEMS FIRST
-  // ==========================================
+    Alert.alert("Success", "Menu Item Added");
+  }
 
   async function fetchMenuItems() {
     const { data, error } = await supabase
@@ -78,10 +105,6 @@ export default function MenuItemsScreen({ route }: any) {
 
     setMenuItems(data || []);
   }
-
-  // ==========================================
-  // DELETE MENU ITEM
-  // ==========================================
 
   async function deleteMenuItem(id: number) {
     Alert.alert(
@@ -115,10 +138,6 @@ export default function MenuItemsScreen({ route }: any) {
     );
   }
 
-  // ==========================================
-  // TOGGLE ON / OFF
-  // ==========================================
-
   async function toggleAvailability(id: number, currentStatus: boolean) {
     const { error } = await supabase
       .from("menu_items")
@@ -135,298 +154,431 @@ export default function MenuItemsScreen({ route }: any) {
     fetchMenuItems();
   }
 
-  // ==========================================
-  // INITIAL LOAD
-  // ==========================================
-
   useEffect(() => {
     fetchMenuItems();
   }, []);
 
-  // ==========================================
-  // UI
-  // ==========================================
-
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: Colors.background,
-        padding: 20,
-      }}
-    >
-      {/* HEADER */}
+    <SafeAreaView style={styles.container}>
+      {/* ================= HEADER ================= */}
 
-      <Text
-        style={{
-          fontSize: 28,
-          fontWeight: "bold",
-          color: Colors.heading,
-          marginBottom: 5,
-        }}
-      >
-        {categoryName}
-      </Text>
+      <View style={styles.header}>
+        <BackButton navigation={navigation} />
 
-      <Text
-        style={{
-          fontSize: 14,
-          color: Colors.textSecondary,
-          marginBottom: 20,
-        }}
-      >
-        Manage items and availability
-      </Text>
+        <View style={styles.titleContainer}>
+          <Text style={styles.titleIcon}>🍽️</Text>
 
-      {/* ADD ITEM SECTION */}
+          <Text style={styles.title} numberOfLines={1}>
+            {categoryName}
+          </Text>
+        </View>
+      </View>
 
-      <View
-        style={{
-          backgroundColor: Colors.card,
-          borderRadius: 14,
-          padding: 15,
-          marginBottom: 20,
-          borderWidth: 1,
-          borderColor: Colors.border,
-          elevation: 2,
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 18,
-            fontWeight: "bold",
-            color: Colors.heading,
-            marginBottom: 12,
-          }}
-        >
-          Add New Item
-        </Text>
+      {/* ================= ADD ITEM ================= */}
+
+      <View style={styles.addSection}>
+        <Text style={styles.sectionTitle}>Add New Item</Text>
 
         <TextInput
           placeholder="Item Name"
-          placeholderTextColor={Colors.textLight}
+          placeholderTextColor={Colors.textSecondary}
           value={itemName}
           onChangeText={setItemName}
-          style={{
-            backgroundColor: Colors.surface,
-            borderWidth: 1,
-            borderColor: Colors.border,
-            borderRadius: 10,
-            padding: 12,
-            marginBottom: 10,
-            color: Colors.text,
-          }}
+          style={styles.input}
         />
 
         <TextInput
           placeholder="Price"
-          placeholderTextColor={Colors.textLight}
+          placeholderTextColor={Colors.textSecondary}
           keyboardType="numeric"
           value={price}
           onChangeText={setPrice}
-          style={{
-            backgroundColor: Colors.surface,
-            borderWidth: 1,
-            borderColor: Colors.border,
-            borderRadius: 10,
-            padding: 12,
-            marginBottom: 12,
-            color: Colors.text,
-          }}
+          style={styles.input}
         />
 
         <TouchableOpacity
+          activeOpacity={0.85}
           onPress={addMenuItem}
-          activeOpacity={0.8}
-          style={{
-            backgroundColor: Colors.primary,
-            paddingVertical: 13,
-            borderRadius: 10,
-          }}
+          style={styles.addButton}
         >
-          <Text
-            style={{
-              color: Colors.buttonText,
-              textAlign: "center",
-              fontWeight: "bold",
-              fontSize: 16,
-            }}
-          >
-            + Add Item
-          </Text>
+          <Text style={styles.addButtonText}>+ Add Item</Text>
         </TouchableOpacity>
       </View>
 
-      {/* MENU ITEMS */}
+      {/* ================= MENU ITEMS ================= */}
 
       <FlatList
         data={menuItems}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{
-          paddingBottom: 30,
-        }}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
         ListHeaderComponent={
-          <Text
-            style={{
-              fontSize: 19,
-              fontWeight: "bold",
-              color: Colors.heading,
-              marginBottom: 12,
-            }}
-          >
-            Menu Items
-          </Text>
+          <View style={styles.listHeader}>
+            <Text style={styles.listTitle}>Menu Items</Text>
+
+            <Text style={styles.itemCount}>
+              {menuItems.length} {menuItems.length === 1 ? "item" : "items"}
+            </Text>
+          </View>
         }
         ListEmptyComponent={
-          <View
-            style={{
-              backgroundColor: Colors.card,
-              padding: 30,
-              borderRadius: 14,
-              borderWidth: 1,
-              borderColor: Colors.border,
-            }}
-          >
-            <Text
-              style={{
-                textAlign: "center",
-                color: Colors.textSecondary,
-                fontSize: 15,
-              }}
-            >
-              No menu items added yet.
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyIcon}>🍽️</Text>
+
+            <Text style={styles.emptyTitle}>No Items Yet</Text>
+
+            <Text style={styles.emptyText}>
+              Add your first item to this category.
             </Text>
           </View>
         }
         renderItem={({ item }) => (
-          <View
-            style={{
-              backgroundColor: Colors.card,
-              padding: 15,
-              borderRadius: 14,
-              marginBottom: 12,
-              borderWidth: 1,
-              borderColor: Colors.border,
-              elevation: 2,
-            }}
-          >
-            {/* ITEM NAME + PRICE */}
+          <View style={styles.itemCard}>
+            {/* Item information */}
 
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-              }}
-            >
-              <View
-                style={{
-                  flex: 1,
-                  paddingRight: 10,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 17,
-                    fontWeight: "bold",
-                    color: Colors.heading,
-                  }}
-                >
+            <View style={styles.itemTopRow}>
+              <View style={styles.itemInfo}>
+                <Text style={styles.itemName} numberOfLines={2}>
                   {item.name}
                 </Text>
 
-                <Text
-                  style={{
-                    fontSize: 17,
-                    fontWeight: "bold",
-                    color: Colors.success,
-                    marginTop: 5,
-                  }}
-                >
-                  ₹ {item.price}
-                </Text>
+                <Text style={styles.price}>₹ {item.price}</Text>
               </View>
 
-              {/* ON / OFF */}
+              {/* Availability badge */}
 
+              <View
+                style={[
+                  styles.statusBadge,
+                  item.is_available ? styles.statusOn : styles.statusOff,
+                ]}
+              >
+                <View
+                  style={[
+                    styles.statusDot,
+                    item.is_available
+                      ? styles.statusDotOn
+                      : styles.statusDotOff,
+                  ]}
+                />
+
+                <Text
+                  style={[
+                    styles.statusText,
+                    item.is_available
+                      ? styles.statusTextOn
+                      : styles.statusTextOff,
+                  ]}
+                >
+                  {item.is_available ? "On" : "Off"}
+                </Text>
+              </View>
+            </View>
+
+            {/* Actions */}
+
+            <View style={styles.actionRow}>
               <TouchableOpacity
-                onPress={() => toggleAvailability(item.id, item.is_available)}
                 activeOpacity={0.8}
-                style={{
-                  backgroundColor: item.is_available
-                    ? Colors.success
-                    : Colors.textLight,
-                  paddingHorizontal: 16,
-                  paddingVertical: 8,
-                  borderRadius: 20,
-                  minWidth: 65,
-                  alignItems: "center",
-                }}
+                onPress={() => toggleAvailability(item.id, item.is_available)}
+                style={[
+                  styles.actionButton,
+                  item.is_available ? styles.offButton : styles.onButton,
+                ]}
               >
                 <Text
-                  style={{
-                    color: Colors.buttonText,
-                    fontWeight: "bold",
-                    fontSize: 13,
-                  }}
+                  style={[
+                    styles.actionButtonText,
+                    item.is_available
+                      ? styles.offButtonText
+                      : styles.onButtonText,
+                  ]}
                 >
-                  {item.is_available ? "ON" : "OFF"}
+                  {item.is_available ? "Turn Off" : "Turn On"}
                 </Text>
               </TouchableOpacity>
-            </View>
 
-            {/* STATUS */}
-
-            <View
-              style={{
-                marginTop: 12,
-                paddingVertical: 8,
-                paddingHorizontal: 10,
-                borderRadius: 8,
-                backgroundColor: item.is_available
-                  ? Colors.softGreen
-                  : Colors.softRed,
-              }}
-            >
-              <Text
-                style={{
-                  color: item.is_available ? Colors.success : Colors.danger,
-                  fontWeight: "600",
-                  fontSize: 13,
-                }}
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => deleteMenuItem(item.id)}
+                style={styles.deleteButton}
               >
-                {item.is_available
-                  ? "✓ Available for customers"
-                  : "✕ Currently unavailable"}
-              </Text>
+                <Text style={styles.deleteButtonText}>Delete</Text>
+              </TouchableOpacity>
             </View>
-
-            {/* DELETE */}
-
-            <TouchableOpacity
-              onPress={() => deleteMenuItem(item.id)}
-              activeOpacity={0.8}
-              style={{
-                marginTop: 10,
-                borderWidth: 1,
-                borderColor: Colors.danger,
-                paddingVertical: 9,
-                borderRadius: 8,
-              }}
-            >
-              <Text
-                style={{
-                  color: Colors.danger,
-                  textAlign: "center",
-                  fontWeight: "bold",
-                }}
-              >
-                Delete
-              </Text>
-            </TouchableOpacity>
           </View>
         )}
       />
-    </View>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    paddingHorizontal: 15,
+  },
+
+  /* ================= HEADER ================= */
+
+  header: {
+    height: 58,
+    position: "relative",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    maxWidth: "65%",
+  },
+
+  titleIcon: {
+    fontSize: 21,
+    marginRight: 7,
+  },
+
+  title: {
+    fontSize: 20,
+    fontWeight: "900",
+    color: Colors.heading,
+  },
+
+  /* ================= ADD SECTION ================= */
+
+  addSection: {
+    backgroundColor: Colors.card,
+    borderRadius: 17,
+    padding: 15,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginBottom: 15,
+    elevation: 2,
+  },
+
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "900",
+    color: Colors.heading,
+    marginBottom: 10,
+  },
+
+  input: {
+    height: 46,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 11,
+    paddingHorizontal: 13,
+    backgroundColor: "#FFFFFF",
+    color: Colors.text,
+    marginBottom: 9,
+  },
+
+  addButton: {
+    height: 45,
+    borderRadius: 11,
+    backgroundColor: Colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 1,
+  },
+
+  addButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "800",
+  },
+
+  /* ================= LIST ================= */
+
+  listContent: {
+    paddingBottom: 30,
+  },
+
+  listHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+
+  listTitle: {
+    fontSize: 18,
+    fontWeight: "900",
+    color: Colors.heading,
+  },
+
+  itemCount: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: Colors.textSecondary,
+  },
+
+  /* ================= ITEM CARD ================= */
+
+  itemCard: {
+    backgroundColor: Colors.card,
+    borderRadius: 15,
+    padding: 14,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    elevation: 2,
+  },
+
+  itemTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+
+  itemInfo: {
+    flex: 1,
+    paddingRight: 10,
+  },
+
+  itemName: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: Colors.heading,
+  },
+
+  price: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: Colors.primary,
+    marginTop: 5,
+  },
+
+  /* ================= STATUS ================= */
+
+  statusBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 20,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+  },
+
+  statusOn: {
+    backgroundColor: "#DCFCE7",
+  },
+
+  statusOff: {
+    backgroundColor: "#FEF2F2",
+  },
+
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginRight: 5,
+  },
+
+  statusDotOn: {
+    backgroundColor: Colors.success,
+  },
+
+  statusDotOff: {
+    backgroundColor: Colors.danger,
+  },
+
+  statusText: {
+    fontSize: 10,
+    fontWeight: "800",
+  },
+
+  statusTextOn: {
+    color: Colors.success,
+  },
+
+  statusTextOff: {
+    color: Colors.danger,
+  },
+
+  /* ================= ACTIONS ================= */
+
+  actionRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 12,
+  },
+
+  actionButton: {
+    flex: 1,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+  },
+
+  offButton: {
+    backgroundColor: "#FFF7ED",
+    borderColor: "#FED7AA",
+  },
+
+  onButton: {
+    backgroundColor: "#F0FDF4",
+    borderColor: "#BBF7D0",
+  },
+
+  actionButtonText: {
+    fontSize: 12,
+    fontWeight: "800",
+  },
+
+  offButtonText: {
+    color: "#C2410C",
+  },
+
+  onButtonText: {
+    color: "#15803D",
+  },
+
+  deleteButton: {
+    flex: 1,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FEF2F2",
+    borderWidth: 1,
+    borderColor: "#FECACA",
+  },
+
+  deleteButtonText: {
+    color: Colors.danger,
+    fontSize: 12,
+    fontWeight: "800",
+  },
+
+  /* ================= EMPTY ================= */
+
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 45,
+  },
+
+  emptyIcon: {
+    fontSize: 42,
+    marginBottom: 10,
+  },
+
+  emptyTitle: {
+    fontSize: 17,
+    fontWeight: "800",
+    color: Colors.heading,
+  },
+
+  emptyText: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 4,
+    textAlign: "center",
+  },
+});

@@ -8,8 +8,11 @@ import {
 } from "react-native";
 
 import { Colors } from "../../theme/colors";
+import BackButton from "../BackButton";
 
 type BillingHeaderProps = {
+  navigation: any;
+
   sendWhatsApp: boolean;
   setSendWhatsApp: (value: boolean) => void;
 
@@ -24,6 +27,7 @@ type BillingHeaderProps = {
 };
 
 export default function BillingHeader({
+  navigation,
   sendWhatsApp,
   setSendWhatsApp,
   customerName,
@@ -35,19 +39,36 @@ export default function BillingHeader({
 }: BillingHeaderProps) {
   return (
     <View style={styles.container}>
-      {/* Header title */}
-      <View style={styles.titleRow}>
-        <View style={styles.titleIcon}>
-          <Text style={styles.titleIconText}>🧾</Text>
+      {/* ========================= */}
+      {/* TOP HEADER */}
+      {/* ========================= */}
+
+      <View style={styles.topHeader}>
+        {/* Back Button */}
+
+        <View style={styles.backButtonContainer}>
+          <BackButton navigation={navigation} />
         </View>
 
-        <View>
-          <Text style={styles.title}>Create Bill</Text>
-          <Text style={styles.subtitle}>Add items and generate invoice</Text>
+        {/* Centered Title */}
+
+        <View style={styles.titleContainer}>
+          <View style={styles.titleIcon}>
+            <Text style={styles.titleIconText}>🧾</Text>
+          </View>
+
+          <View>
+            <Text style={styles.title}>Create Bill</Text>
+
+            <Text style={styles.subtitle}>Add items and generate invoice</Text>
+          </View>
         </View>
       </View>
 
-      {/* WhatsApp Toggle */}
+      {/* ========================= */}
+      {/* WHATSAPP TOGGLE */}
+      {/* ========================= */}
+
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => setSendWhatsApp(!sendWhatsApp)}
@@ -87,7 +108,10 @@ export default function BillingHeader({
         </View>
       </TouchableOpacity>
 
-      {/* Customer Details */}
+      {/* ========================= */}
+      {/* CUSTOMER DETAILS */}
+      {/* ========================= */}
+
       {sendWhatsApp && (
         <View style={styles.customerSection}>
           <View style={styles.inputWrapper}>
@@ -117,7 +141,10 @@ export default function BillingHeader({
         </View>
       )}
 
-      {/* Search */}
+      {/* ========================= */}
+      {/* SEARCH */}
+      {/* ========================= */}
+
       <View style={styles.searchContainer}>
         <Text style={styles.searchIcon}>🔍</Text>
 
@@ -143,41 +170,64 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.background,
     paddingHorizontal: 15,
-    paddingTop: 10,
+    paddingTop: 4,
     paddingBottom: 8,
   },
 
-  titleRow: {
+  /* ========================= */
+  /* TOP HEADER */
+  /* ========================= */
+
+  topHeader: {
+    height: 62,
+    position: "relative",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 7,
+  },
+
+  backButtonContainer: {
+    position: "absolute",
+    left: 0,
+    top: 8,
+    zIndex: 10,
+  },
+
+  titleContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
+    justifyContent: "center",
   },
 
   titleIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+    width: 42,
+    height: 42,
+    borderRadius: 13,
     backgroundColor: Colors.primary,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 10,
+    marginRight: 9,
   },
 
   titleIconText: {
-    fontSize: 22,
+    fontSize: 21,
   },
 
   title: {
-    fontSize: 24,
-    fontWeight: "800",
+    fontSize: 22,
+    fontWeight: "900",
     color: Colors.heading,
   },
 
   subtitle: {
-    fontSize: 12,
+    fontSize: 11,
     color: Colors.textSecondary,
     marginTop: 1,
   },
+
+  /* ========================= */
+  /* WHATSAPP */
+  /* ========================= */
 
   whatsappToggle: {
     minHeight: 52,
@@ -194,7 +244,7 @@ const styles = StyleSheet.create({
   },
 
   whatsappToggleActive: {
-    borderColor: Colors.whatsapp,
+    borderColor: Colors.primary,
     backgroundColor: "#F0FDF4",
   },
 
@@ -244,7 +294,7 @@ const styles = StyleSheet.create({
   },
 
   switchActive: {
-    backgroundColor: Colors.whatsapp,
+    backgroundColor: Colors.primary,
   },
 
   switchThumb: {
@@ -257,6 +307,10 @@ const styles = StyleSheet.create({
   switchThumbActive: {
     alignSelf: "flex-end",
   },
+
+  /* ========================= */
+  /* CUSTOMER */
+  /* ========================= */
 
   customerSection: {
     flexDirection: "row",
@@ -288,10 +342,14 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
 
+  /* ========================= */
+  /* SEARCH */
+  /* ========================= */
+
   searchContainer: {
     height: 44,
     borderRadius: 13,
-    backgroundColor: Colors.searchBackground,
+    backgroundColor: Colors.card,
     borderWidth: 1,
     borderColor: Colors.border,
     flexDirection: "row",

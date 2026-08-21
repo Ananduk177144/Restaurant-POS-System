@@ -14,7 +14,9 @@ import { Colors } from "../theme/colors";
 
 import useBilling from "../hooks/useBilling";
 
-export default function BillingScreenV2() {
+
+
+export default function BillingScreenV2({ navigation }: any) {
   const {
     categories,
     menuItems,
@@ -54,6 +56,7 @@ export default function BillingScreenV2() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <BillingHeader
+        navigation={navigation}
         sendWhatsApp={sendWhatsApp}
         setSendWhatsApp={setSendWhatsApp}
         customerName={customerName}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import {
   View,
@@ -13,6 +13,8 @@ import { supabase } from "../services/supabase";
 import { Colors } from "../theme/colors";
 
 export default function DashboardScreen({ navigation }: any) {
+  const [isOnline, setIsOnline] = useState(true);
+
   async function logout() {
     Alert.alert("Logout", "Are you sure you want to logout?", [
       {
@@ -31,6 +33,10 @@ export default function DashboardScreen({ navigation }: any) {
         },
       },
     ]);
+  }
+
+  function toggleStatus() {
+    setIsOnline((currentStatus) => !currentStatus);
   }
 
   return (
@@ -56,11 +62,31 @@ export default function DashboardScreen({ navigation }: any) {
             </View>
           </View>
 
-          <View style={styles.statusBadge}>
-            <View style={styles.statusDot} />
+          {/* ONLINE / OFFLINE TOGGLE */}
+          <TouchableOpacity
+            activeOpacity={0.75}
+            onPress={toggleStatus}
+            style={[
+              styles.statusBadge,
+              isOnline ? styles.onlineBadge : styles.offlineBadge,
+            ]}
+          >
+            <View
+              style={[
+                styles.statusDot,
+                isOnline ? styles.onlineDot : styles.offlineDot,
+              ]}
+            />
 
-            <Text style={styles.statusText}>Online</Text>
-          </View>
+            <Text
+              style={[
+                styles.statusText,
+                isOnline ? styles.onlineText : styles.offlineText,
+              ]}
+            >
+              {isOnline ? "Online" : "Offline"}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* ========================= */}
@@ -298,27 +324,52 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
+  /* ========================= */
+  /* ONLINE / OFFLINE */
+  /* ========================= */
+
   statusBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#DCFCE7",
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 6,
+  },
+
+  onlineBadge: {
+    backgroundColor: "#DCFCE7",
+  },
+
+  offlineBadge: {
+    backgroundColor: "#FEE2E2",
   },
 
   statusDot: {
     width: 7,
     height: 7,
     borderRadius: 4,
-    backgroundColor: Colors.success,
     marginRight: 5,
   },
 
+  onlineDot: {
+    backgroundColor: Colors.success,
+  },
+
+  offlineDot: {
+    backgroundColor: Colors.logout,
+  },
+
   statusText: {
-    color: Colors.success,
     fontSize: 11,
     fontWeight: "800",
+  },
+
+  onlineText: {
+    color: Colors.success,
+  },
+
+  offlineText: {
+    color: Colors.logout,
   },
 
   /* ========================= */
@@ -552,3 +603,4 @@ const styles = StyleSheet.create({
     marginTop: 13,
   },
 });
+``

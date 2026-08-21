@@ -7,10 +7,12 @@ import {
   StyleSheet,
   RefreshControl,
 } from "react-native";
+
 import { useFocusEffect } from "@react-navigation/native";
 
 import { supabase } from "../services/supabase";
 import { Colors } from "../theme/colors";
+import BackButton from "../components/BackButton";
 
 export default function BillHistoryScreen({ navigation }: any) {
   const [bills, setBills] = useState<any[]>([]);
@@ -65,6 +67,39 @@ export default function BillHistoryScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
+      {/* ========================= */}
+      {/* HEADER */}
+      {/* ========================= */}
+
+      <View style={styles.header}>
+        {/* Back Button */}
+        <View style={styles.backButtonContainer}>
+          <BackButton navigation={navigation} />
+        </View>
+
+        {/* Centered Title */}
+        <View style={styles.titleContainer}>
+          <Text style={styles.titleIcon}>🧾</Text>
+
+          <View>
+            <Text style={styles.title}>Bill History</Text>
+
+            <Text style={styles.subtitle}>
+              View and manage your previous bills
+            </Text>
+          </View>
+        </View>
+
+        {/* Bill Count */}
+        <View style={styles.countBadge}>
+          <Text style={styles.countText}>{bills.length}</Text>
+        </View>
+      </View>
+
+      {/* ========================= */}
+      {/* BILL LIST */}
+      {/* ========================= */}
+
       <FlatList
         data={bills}
         keyExtractor={(item) => item.id.toString()}
@@ -76,24 +111,12 @@ export default function BillHistoryScreen({ navigation }: any) {
           styles.listContent,
           bills.length === 0 && styles.emptyList,
         ]}
-        ListHeaderComponent={
-          <View style={styles.header}>
-            <View>
-              <Text style={styles.title}>Bill History</Text>
-
-              <Text style={styles.subtitle}>
-                View and manage your previous bills
-              </Text>
-            </View>
-
-            <View style={styles.countBadge}>
-              <Text style={styles.countText}>{bills.length}</Text>
-            </View>
-          </View>
-        }
         renderItem={({ item }) => (
           <View style={styles.billCard}>
-            {/* Top Section */}
+            {/* ========================= */}
+            {/* TOP SECTION */}
+            {/* ========================= */}
+
             <View style={styles.cardTop}>
               <View style={styles.billIcon}>
                 <Text style={styles.billIconText}>🧾</Text>
@@ -117,7 +140,10 @@ export default function BillHistoryScreen({ navigation }: any) {
               </View>
             </View>
 
-            {/* Customer */}
+            {/* ========================= */}
+            {/* CUSTOMER */}
+            {/* ========================= */}
+
             <View style={styles.customerSection}>
               <Text style={styles.customerLabel}>CUSTOMER</Text>
 
@@ -129,7 +155,10 @@ export default function BillHistoryScreen({ navigation }: any) {
             {/* Divider */}
             <View style={styles.divider} />
 
-            {/* Action */}
+            {/* ========================= */}
+            {/* VIEW DETAILS */}
+            {/* ========================= */}
+
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() =>
@@ -171,43 +200,57 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
 
-  listContent: {
-    padding: 18,
-    paddingBottom: 35,
-  },
-
-  emptyList: {
-    flexGrow: 1,
-  },
-
-  // =========================
-  // HEADER
-  // =========================
+  /* ========================= */
+  /* HEADER */
+  /* ========================= */
 
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    height: 82,
+    position: "relative",
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 18,
+    paddingHorizontal: 18,
+  },
+
+  backButtonContainer: {
+    position: "absolute",
+    left: 18,
+    top: 20,
+    zIndex: 10,
+  },
+
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    maxWidth: "70%",
+  },
+
+  titleIcon: {
+    fontSize: 23,
+    marginRight: 8,
   },
 
   title: {
-    fontSize: 28,
+    fontSize: 21,
     fontWeight: "900",
     color: Colors.heading,
   },
 
   subtitle: {
-    fontSize: 13,
+    fontSize: 10,
     color: Colors.textSecondary,
-    marginTop: 4,
+    marginTop: 2,
   },
 
   countBadge: {
-    minWidth: 42,
-    height: 42,
-    paddingHorizontal: 10,
-    borderRadius: 21,
+    position: "absolute",
+    right: 18,
+    top: 23,
+    minWidth: 36,
+    height: 36,
+    paddingHorizontal: 9,
+    borderRadius: 18,
     backgroundColor: Colors.primary,
     justifyContent: "center",
     alignItems: "center",
@@ -215,13 +258,26 @@ const styles = StyleSheet.create({
 
   countText: {
     color: Colors.buttonText,
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: "800",
   },
 
-  // =========================
-  // BILL CARD
-  // =========================
+  /* ========================= */
+  /* LIST */
+  /* ========================= */
+
+  listContent: {
+    paddingHorizontal: 18,
+    paddingBottom: 35,
+  },
+
+  emptyList: {
+    flexGrow: 1,
+  },
+
+  /* ========================= */
+  /* BILL CARD */
+  /* ========================= */
 
   billCard: {
     backgroundColor: Colors.card,
@@ -297,9 +353,9 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  // =========================
-  // CUSTOMER
-  // =========================
+  /* ========================= */
+  /* CUSTOMER */
+  /* ========================= */
 
   customerSection: {
     marginTop: 14,
@@ -328,9 +384,9 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
 
-  // =========================
-  // VIEW BUTTON
-  // =========================
+  /* ========================= */
+  /* VIEW BUTTON */
+  /* ========================= */
 
   viewButton: {
     flexDirection: "row",
@@ -360,9 +416,9 @@ const styles = StyleSheet.create({
     lineHeight: 25,
   },
 
-  // =========================
-  // EMPTY STATE
-  // =========================
+  /* ========================= */
+  /* EMPTY STATE */
+  /* ========================= */
 
   emptyContainer: {
     alignItems: "center",

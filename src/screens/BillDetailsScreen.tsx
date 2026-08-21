@@ -12,6 +12,7 @@ import {
 
 import { supabase } from "../services/supabase";
 import { Colors } from "../theme/colors";
+import BackButton from "../components/BackButton";
 
 export default function BillDetailsScreen({ route, navigation }: any) {
   const { billId } = route.params;
@@ -67,10 +68,18 @@ export default function BillDetailsScreen({ route, navigation }: any) {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+      <View style={styles.loadingScreen}>
+        <View style={styles.loadingHeader}>
+          <BackButton navigation={navigation} />
 
-        <Text style={styles.loadingText}>Loading bill...</Text>
+          <Text style={styles.loadingHeaderTitle}>Bill Details</Text>
+        </View>
+
+        <View style={styles.loadingContent}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+
+          <Text style={styles.loadingText}>Loading bill...</Text>
+        </View>
       </View>
     );
   }
@@ -79,44 +88,44 @@ export default function BillDetailsScreen({ route, navigation }: any) {
   // WHATSAPP
   // ==========================================
 
-async function shareViaWhatsApp() {
-  if (!bill?.customer_mobile) {
-    Alert.alert(
-      "Customer Number Missing",
-      "Customer mobile number is not available for this bill.",
+  async function shareViaWhatsApp() {
+    if (!bill?.customer_mobile) {
+      Alert.alert(
+        "Customer Number Missing",
+        "Customer mobile number is not available for this bill.",
+      );
+      return;
+    }
+
+    const billDate = bill?.created_at ? new Date(bill.created_at) : new Date();
+
+    const formattedDate = billDate.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+
+    const formattedTime = billDate.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const totalQuantity = billItems.reduce(
+      (total, item) => total + Number(item.quantity || 0),
+      0,
     );
-    return;
-  }
 
-  const billDate = bill?.created_at ? new Date(bill.created_at) : new Date();
-
-  const formattedDate = billDate.toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-
-  const formattedTime = billDate.toLocaleTimeString("en-IN", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
-  const totalQuantity = billItems.reduce(
-    (total, item) => total + Number(item.quantity || 0),
-    0,
-  );
-
-  const invoiceItems = billItems
-    .map(
-      (item, index) =>
-        `${index + 1}. ${item.item_name}
+    const invoiceItems = billItems
+      .map(
+        (item, index) =>
+          `${index + 1}. ${item.item_name}
    ₹${Number(item.price).toFixed(2)} × ${item.quantity} = ₹${Number(
      item.subtotal,
    ).toFixed(2)}`,
-    )
-    .join("\n\n");
+      )
+      .join("\n\n");
 
-  const invoiceText = `
+    const invoiceText = `
 🍽️ *MALABAR MESS HOUSE*
 📍 THIRUVAMBADY
 
@@ -157,30 +166,31 @@ Please visit again.
 *THIRUVAMBADY*
 `;
 
-  const phone = `91${bill.customer_mobile}`;
+    const phone = `91${bill.customer_mobile}`;
 
-  const url = `https://wa.me/${phone}?text=` + encodeURIComponent(invoiceText);
+    const url =
+      `https://wa.me/${phone}?text=` + encodeURIComponent(invoiceText);
 
-  try {
-    await Linking.openURL(url);
+    try {
+      await Linking.openURL(url);
 
-    await supabase
-      .from("bills")
-      .update({
+      await supabase
+        .from("bills")
+        .update({
+          whatsapp_sent: true,
+        })
+        .eq("id", billId);
+
+      setBill({
+        ...bill,
         whatsapp_sent: true,
-      })
-      .eq("id", billId);
+      });
+    } catch (error) {
+      console.log(error);
 
-    setBill({
-      ...bill,
-      whatsapp_sent: true,
-    });
-  } catch (error) {
-    console.log(error);
-
-    Alert.alert("Error", "Unable to open WhatsApp.");
+      Alert.alert("Error", "Unable to open WhatsApp.");
+    }
   }
-}
 
   // ==========================================
   // DELETE BILL
@@ -264,210 +274,231 @@ Please visit again.
   // ==========================================
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
+    <View style={styles.screen}>
       {/* =====================================
-          INVOICE
+          HEADER
       ===================================== */}
 
-      <View style={styles.invoiceCard}>
-        {/* Restaurant Header */}
+      <View style={styles.header}>
+        <BackButton navigation={navigation} />
 
-        <View style={styles.restaurantHeader}>
-          <View style={styles.restaurantIcon}>
-            <Text style={styles.restaurantIconText}>🍽️</Text>
-          </View>
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.headerTitle}>Bill Details</Text>
 
-          <Text style={styles.restaurantName}>MALABAR MESS HOUSE</Text>
-
-          <Text style={styles.restaurantLocation}>THIRUVAMBADY</Text>
-
-          <View style={styles.invoiceBadge}>
-            <Text style={styles.invoiceBadgeText}>RESTAURANT INVOICE</Text>
-          </View>
-        </View>
-
-        {/* Invoice Information */}
-
-        <View style={styles.invoiceInfo}>
-          <View>
-            <Text style={styles.smallLabel}>BILL NUMBER</Text>
-
-            <Text style={styles.billNumber}>#{bill?.bill_number}</Text>
-          </View>
-
-          <View style={styles.dateContainer}>
-            <Text style={styles.smallLabel}>DATE & TIME</Text>
-
-            <Text style={styles.dateText}>{formattedDate}</Text>
-
-            <Text style={styles.timeText}>{formattedTime}</Text>
-          </View>
-        </View>
-
-        {/* Customer */}
-
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>CUSTOMER DETAILS</Text>
-
-          <View style={styles.customerCard}>
-            <View style={styles.customerIcon}>
-              <Text>👤</Text>
-            </View>
-
-            <View style={styles.customerInfo}>
-              <Text style={styles.customerName}>
-                {bill?.customer_name || "Walk-In Customer"}
-              </Text>
-
-              {bill?.customer_mobile ? (
-                <Text style={styles.customerMobile}>
-                   {bill.customer_mobile}
-                </Text>
-              ) : (
-                <Text style={styles.customerMobile}>No mobile number</Text>
-              )}
-            </View>
-
-            <View
-              style={[
-                styles.whatsappStatus,
-                bill?.whatsapp_sent
-                  ? styles.whatsappSent
-                  : styles.whatsappNotSent,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.whatsappStatusText,
-                  bill?.whatsapp_sent
-                    ? styles.whatsappSentText
-                    : styles.whatsappNotSentText,
-                ]}
-              >
-                {bill?.whatsapp_sent ? "WhatsApp Sent" : "Not Sent"}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Items */}
-
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>ORDER ITEMS</Text>
-
-          {/* Table Header */}
-
-          <View style={styles.tableHeader}>
-            <Text style={[styles.tableHeaderText, styles.itemColumn]}>
-              ITEM
-            </Text>
-
-            <Text style={[styles.tableHeaderText, styles.quantityColumn]}>
-              QTY
-            </Text>
-
-            <Text style={[styles.tableHeaderText, styles.priceColumn]}>
-              AMOUNT
-            </Text>
-          </View>
-
-          {billItems.map((item, index) => (
-            <View
-              key={item.id}
-              style={[
-                styles.itemRow,
-                index === billItems.length - 1 && styles.lastItemRow,
-              ]}
-            >
-              <View style={styles.itemColumn}>
-                <Text style={styles.itemName}>{item.item_name}</Text>
-
-                <Text style={styles.itemPrice}>
-                  ₹ {Number(item.price).toFixed(2)} each
-                </Text>
-              </View>
-
-              <Text style={[styles.quantityColumn, styles.quantityText]}>
-                {item.quantity}
-              </Text>
-
-              <Text style={[styles.priceColumn, styles.subtotalText]}>
-                ₹ {Number(item.subtotal).toFixed(2)}
-              </Text>
-            </View>
-          ))}
-        </View>
-
-        {/* Summary */}
-
-        <View style={styles.summarySection}>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Total Items</Text>
-
-            <Text style={styles.summaryValue}>{totalQuantity}</Text>
-          </View>
-
-          <View style={styles.summaryDivider} />
-
-          <View style={styles.grandTotalRow}>
-            <Text style={styles.grandTotalLabel}>GRAND TOTAL</Text>
-
-            <Text style={styles.grandTotal}>
-              ₹ {Number(bill?.total_amount || 0).toFixed(2)}
-            </Text>
-          </View>
-        </View>
-
-        {/* Footer */}
-
-        <View style={styles.invoiceFooter}>
-          <Text style={styles.thankYou}>Thank you for visiting us! ❤️</Text>
-
-          <Text style={styles.visitAgain}>Please visit again.</Text>
+          <Text style={styles.headerSubtitle}>
+            Invoice #{bill?.bill_number}
+          </Text>
         </View>
       </View>
 
       {/* =====================================
-          ACTION BUTTONS
+          CONTENT
       ===================================== */}
 
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={() =>
-          Alert.alert(
-            "Send Invoice",
-            "Send invoice to customer via WhatsApp?",
-            [
-              {
-                text: "Cancel",
-                style: "cancel",
-              },
-              {
-                text: "Send",
-                onPress: shareViaWhatsApp,
-              },
-            ],
-          )
-        }
-        style={styles.whatsappButton}
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.whatsappIcon}>📱</Text>
+        {/* =====================================
+            INVOICE
+        ===================================== */}
 
-        <Text style={styles.whatsappButtonText}>Share via WhatsApp</Text>
-      </TouchableOpacity>
+        <View style={styles.invoiceCard}>
+          {/* Restaurant Header */}
 
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={confirmDeleteBill}
-        style={styles.deleteButton}
-      >
-        <Text style={styles.deleteButtonText}>Delete Bill</Text>
-      </TouchableOpacity>
-    </ScrollView>
+          <View style={styles.restaurantHeader}>
+            <View style={styles.restaurantIcon}>
+              <Text style={styles.restaurantIconText}>🍽️</Text>
+            </View>
+
+            <Text style={styles.restaurantName}>MALABAR MESS HOUSE</Text>
+
+            <Text style={styles.restaurantLocation}>THIRUVAMBADY</Text>
+
+            <View style={styles.invoiceBadge}>
+              <Text style={styles.invoiceBadgeText}>RESTAURANT INVOICE</Text>
+            </View>
+          </View>
+
+          {/* Invoice Information */}
+
+          <View style={styles.invoiceInfo}>
+            <View>
+              <Text style={styles.smallLabel}>BILL NUMBER</Text>
+
+              <Text style={styles.billNumber}>#{bill?.bill_number}</Text>
+            </View>
+
+            <View style={styles.dateContainer}>
+              <Text style={styles.smallLabel}>DATE & TIME</Text>
+
+              <Text style={styles.dateText}>{formattedDate}</Text>
+
+              <Text style={styles.timeText}>{formattedTime}</Text>
+            </View>
+          </View>
+
+          {/* Customer */}
+
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>CUSTOMER DETAILS</Text>
+
+            <View style={styles.customerCard}>
+              <View style={styles.customerIcon}>
+                <Text>👤</Text>
+              </View>
+
+              <View style={styles.customerInfo}>
+                <Text style={styles.customerName}>
+                  {bill?.customer_name || "Walk-In Customer"}
+                </Text>
+
+                {bill?.customer_mobile ? (
+                  <Text style={styles.customerMobile}>
+                    {bill.customer_mobile}
+                  </Text>
+                ) : (
+                  <Text style={styles.customerMobile}>No mobile number</Text>
+                )}
+              </View>
+
+              <View
+                style={[
+                  styles.whatsappStatus,
+                  bill?.whatsapp_sent
+                    ? styles.whatsappSent
+                    : styles.whatsappNotSent,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.whatsappStatusText,
+                    bill?.whatsapp_sent
+                      ? styles.whatsappSentText
+                      : styles.whatsappNotSentText,
+                  ]}
+                >
+                  {bill?.whatsapp_sent ? "WhatsApp Sent" : "Not Sent"}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Items */}
+
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>ORDER ITEMS</Text>
+
+            {/* Table Header */}
+
+            <View style={styles.tableHeader}>
+              <Text style={[styles.tableHeaderText, styles.itemColumn]}>
+                ITEM
+              </Text>
+
+              <Text style={[styles.tableHeaderText, styles.quantityColumn]}>
+                QTY
+              </Text>
+
+              <Text style={[styles.tableHeaderText, styles.priceColumn]}>
+                AMOUNT
+              </Text>
+            </View>
+
+            {billItems.map((item, index) => (
+              <View
+                key={item.id}
+                style={[
+                  styles.itemRow,
+                  index === billItems.length - 1 && styles.lastItemRow,
+                ]}
+              >
+                <View style={styles.itemColumn}>
+                  <Text style={styles.itemName}>{item.item_name}</Text>
+
+                  <Text style={styles.itemPrice}>
+                    ₹ {Number(item.price).toFixed(2)} each
+                  </Text>
+                </View>
+
+                <Text style={[styles.quantityColumn, styles.quantityText]}>
+                  {item.quantity}
+                </Text>
+
+                <Text style={[styles.priceColumn, styles.subtotalText]}>
+                  ₹ {Number(item.subtotal).toFixed(2)}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Summary */}
+
+          <View style={styles.summarySection}>
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Total Items</Text>
+
+              <Text style={styles.summaryValue}>{totalQuantity}</Text>
+            </View>
+
+            <View style={styles.summaryDivider} />
+
+            <View style={styles.grandTotalRow}>
+              <Text style={styles.grandTotalLabel}>GRAND TOTAL</Text>
+
+              <Text style={styles.grandTotal}>
+                ₹ {Number(bill?.total_amount || 0).toFixed(2)}
+              </Text>
+            </View>
+          </View>
+
+          {/* Footer */}
+
+          <View style={styles.invoiceFooter}>
+            <Text style={styles.thankYou}>Thank you for visiting us! ❤️</Text>
+
+            <Text style={styles.visitAgain}>Please visit again.</Text>
+          </View>
+        </View>
+
+        {/* =====================================
+            ACTION BUTTONS
+        ===================================== */}
+
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() =>
+            Alert.alert(
+              "Send Invoice",
+              "Send invoice to customer via WhatsApp?",
+              [
+                {
+                  text: "Cancel",
+                  style: "cancel",
+                },
+                {
+                  text: "Send",
+                  onPress: shareViaWhatsApp,
+                },
+              ],
+            )
+          }
+          style={styles.whatsappButton}
+        >
+          <Text style={styles.whatsappIcon}>📱</Text>
+
+          <Text style={styles.whatsappButtonText}>Share via WhatsApp</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={confirmDeleteBill}
+          style={styles.deleteButton}
+        >
+          <Text style={styles.deleteButtonText}>Delete Bill</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -481,14 +512,63 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
 
-  content: {
-    padding: 16,
-    paddingBottom: 35,
+  // ========================================
+  // HEADER
+  // ========================================
+
+  header: {
+    height: 72,
+    position: "relative",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
   },
 
-  loadingContainer: {
+  headerTitleContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  headerTitle: {
+    fontSize: 21,
+    fontWeight: "900",
+    color: Colors.heading,
+  },
+
+  headerSubtitle: {
+    fontSize: 10,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+
+  // ========================================
+  // LOADING
+  // ========================================
+
+  loadingScreen: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+
+  loadingHeader: {
+    height: 72,
+    position: "relative",
+    justifyContent: "center",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+
+  loadingHeaderTitle: {
+    fontSize: 21,
+    fontWeight: "900",
+    color: Colors.heading,
+  },
+
+  loadingContent: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -500,6 +580,15 @@ const styles = StyleSheet.create({
   },
 
   // ========================================
+  // CONTENT
+  // ========================================
+
+  content: {
+    padding: 16,
+    paddingBottom: 35,
+  },
+
+  // ========================================
   // INVOICE CARD
   // ========================================
 
@@ -507,10 +596,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.card,
     borderRadius: 18,
     padding: 18,
-
     borderWidth: 1,
     borderColor: Colors.border,
-
     elevation: 4,
 
     shadowColor: "#000",

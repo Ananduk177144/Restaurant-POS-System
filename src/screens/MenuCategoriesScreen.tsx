@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
-
 import {
   FlatList,
   TouchableOpacity,
   Text,
   View,
   StyleSheet,
-  ActivityIndicator,
+  Alert,
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { supabase } from "../services/supabase";
 import { Colors } from "../theme/colors";
+import BackButton from "../components/BackButton";
 
 export default function MenuCategoriesScreen({ navigation }: any) {
   const [categories, setCategories] = useState<any[]>([]);
@@ -28,20 +28,23 @@ export default function MenuCategoriesScreen({ navigation }: any) {
     const { data, error } = await supabase
       .from("categories")
       .select("*")
-      .order("name");
-
-    setLoading(false);
+      .order("name", { ascending: true });
 
     if (error) {
-      console.log(error);
+      console.log("Category fetch error:", error);
+      Alert.alert("Error", error.message);
+      setLoading(false);
       return;
     }
 
+    console.log("Categories fetched:", data);
+
     setCategories(data || []);
+    setLoading(false);
   }
 
   function getCategoryIcon(name: string) {
-    const icons: { [key: string]: string } = {
+    const icons: any = {
       Beverages: "🥤",
       Drinks: "🥤",
       Breakfast: "🍳",
@@ -60,175 +63,116 @@ export default function MenuCategoriesScreen({ navigation }: any) {
       Beef: "🥩",
       Fish: "🐟",
       Veg: "🥗",
-      Biryani: "🍗",
-      Biriyani: "🍗",
-      FriedRice: "🍚",
-      Chinese: "🥢",
-      Sandwich: "🥪",
-      Mutton: "🍖",
     };
 
     return icons[name] || "🍽️";
   }
 
+  function openCategory(item: any) {
+    console.log("Selected category:", item);
+
+    if (!item || item.id === undefined || item.id === null) {
+      Alert.alert(
+        "Category Error",
+        "This category does not have a valid category ID.",
+      );
+
+      return;
+    }
+
+    navigation.navigate("MenuItemsView", {
+      categoryId: item.id,
+      categoryName: item.name,
+    });
+  }
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        {/* ========================= */}
-        {/* HEADER */}
-        {/* ========================= */}
+    <SafeAreaView style={styles.container}>
+      {/* ========================= */}
+      {/* HEADER */}
+      {/* ========================= */}
 
-        <View style={styles.header}>
-          <View style={styles.headerIcon}>
-            <Text style={styles.headerEmoji}>🍽️</Text>
-          </View>
+      <View style={styles.header}>
+        <BackButton navigation={navigation} />
 
-          <View style={styles.headerText}>
-            <Text style={styles.title}>View Menu</Text>
+        <View style={styles.titleContainer}>
+          <Text style={styles.titleIcon}>🍽️</Text>
 
-            <Text style={styles.subtitle}>
-              Explore our available menu categories
-            </Text>
-          </View>
-
-          <View style={styles.categoryCount}>
-            <Text style={styles.categoryCountNumber}>{categories.length}</Text>
-
-            <Text style={styles.categoryCountLabel}>Categories</Text>
-          </View>
+          <Text style={styles.headerTitle}>View Menu</Text>
         </View>
-
-        {/* ========================= */}
-        {/* WELCOME BANNER */}
-        {/* ========================= */}
-
-        <View style={styles.banner}>
-          <View style={styles.bannerContent}>
-            <Text style={styles.bannerTitle}>What would you like today?</Text>
-
-            <Text style={styles.bannerSubtitle}>
-              Select a category to explore the available dishes.
-            </Text>
-          </View>
-
-          <Text style={styles.bannerEmoji}>👨‍🍳</Text>
-        </View>
-
-        {/* ========================= */}
-        {/* SECTION HEADER */}
-        {/* ========================= */}
-
-        <View style={styles.sectionHeader}>
-          <View>
-            <Text style={styles.sectionTitle}>Categories</Text>
-
-            <Text style={styles.sectionSubtitle}>
-              Choose a category to continue
-            </Text>
-          </View>
-
-          <View style={styles.categoryBadge}>
-            <Text style={styles.categoryBadgeText}>
-              {categories.length}{" "}
-              {categories.length === 1 ? "Category" : "Categories"}
-            </Text>
-          </View>
-        </View>
-
-        {/* ========================= */}
-        {/* LOADING */}
-        {/* ========================= */}
-
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={Colors.primary} />
-
-            <Text style={styles.loadingText}>Loading menu...</Text>
-          </View>
-        ) : (
-          <FlatList
-            data={categories}
-            keyExtractor={(item) => item.id.toString()}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.listContent}
-            ListEmptyComponent={
-              <View style={styles.emptyContainer}>
-                <View style={styles.emptyIcon}>
-                  <Text style={styles.emptyEmoji}>🍽️</Text>
-                </View>
-
-                <Text style={styles.emptyTitle}>No Categories Available</Text>
-
-                <Text style={styles.emptyText}>
-                  The menu categories are currently unavailable.
-                </Text>
-              </View>
-            }
-            renderItem={({ item, index }) => (
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() =>
-                  navigation.navigate("MenuItemsView", {
-                    categoryId: item.id,
-                    categoryName: item.name,
-                  })
-                }
-                style={styles.categoryCard}
-              >
-                {/* Category Number */}
-
-                <View style={styles.numberContainer}>
-                  <Text style={styles.numberText}>
-                    {String(index + 1).padStart(2, "0")}
-                  </Text>
-                </View>
-
-                {/* Category Icon */}
-
-                <View style={styles.categoryIcon}>
-                  <Text style={styles.categoryEmoji}>
-                    {getCategoryIcon(item.name)}
-                  </Text>
-                </View>
-
-                {/* Category Details */}
-
-                <View style={styles.categoryInfo}>
-                  <Text numberOfLines={1} style={styles.categoryName}>
-                    {item.name}
-                  </Text>
-
-                  <Text style={styles.categoryDescription}>
-                    Tap to view available items
-                  </Text>
-                </View>
-
-                {/* Arrow */}
-
-                <View style={styles.arrowContainer}>
-                  <Text style={styles.arrow}>›</Text>
-                </View>
-              </TouchableOpacity>
-            )}
-          />
-        )}
       </View>
+
+      {/* ========================= */}
+      {/* CATEGORY LIST */}
+      {/* ========================= */}
+
+      <FlatList
+        data={categories}
+        keyExtractor={(item, index) =>
+          item?.id !== undefined ? item.id.toString() : `category-${index}`
+        }
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
+        refreshing={loading}
+        onRefresh={fetchCategories}
+        ListHeaderComponent={
+          <View style={styles.intro}>
+            <Text style={styles.introTitle}>Explore Our Menu</Text>
+
+            <Text style={styles.introSubtitle}>
+              Select a category to view the available items.
+            </Text>
+          </View>
+        }
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => openCategory(item)}
+            style={styles.categoryCard}
+          >
+            {/* Category Icon */}
+
+            <View style={styles.iconContainer}>
+              <Text style={styles.icon}>{getCategoryIcon(item.name)}</Text>
+            </View>
+
+            {/* Category Information */}
+
+            <View style={styles.categoryContent}>
+              <Text style={styles.categoryName}>{item.name}</Text>
+
+              <Text style={styles.categorySubtitle}>
+                Tap to view menu items
+              </Text>
+            </View>
+
+            {/* Arrow */}
+
+            <View style={styles.arrowContainer}>
+              <Text style={styles.arrow}>›</Text>
+            </View>
+          </TouchableOpacity>
+        )}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyIcon}>🍽️</Text>
+
+            <Text style={styles.emptyTitle}>No Categories Available</Text>
+
+            <Text style={styles.emptyText}>
+              Menu categories will appear here once they are added.
+            </Text>
+          </View>
+        }
+      />
     </SafeAreaView>
   );
 }
 
-/* ========================= */
-/* STYLES */
-/* ========================= */
-
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-
   container: {
     flex: 1,
+    backgroundColor: Colors.background,
     paddingHorizontal: 16,
   },
 
@@ -237,137 +181,51 @@ const styles = StyleSheet.create({
   /* ========================= */
 
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingTop: 8,
-    paddingBottom: 14,
-  },
-
-  headerIcon: {
-    width: 49,
-    height: 49,
-    borderRadius: 15,
-    backgroundColor: "#FFF3E6",
+    height: 70,
+    position: "relative",
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 11,
+    paddingTop: 14,
+    marginBottom: 2,
   },
 
-  headerEmoji: {
-    fontSize: 25,
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    maxWidth: "70%",
   },
 
-  headerText: {
-    flex: 1,
+  titleIcon: {
+    fontSize: 22,
+    marginRight: 7,
   },
 
-  title: {
-    fontSize: 23,
+  headerTitle: {
+    fontSize: 21,
     fontWeight: "900",
     color: Colors.heading,
   },
 
-  subtitle: {
+  /* ========================= */
+  /* INTRO */
+  /* ========================= */
+
+  intro: {
+    marginTop: 4,
+    marginBottom: 14,
+  },
+
+  introTitle: {
+    fontSize: 18,
+    fontWeight: "900",
+    color: Colors.heading,
+  },
+
+  introSubtitle: {
     fontSize: 11,
     color: Colors.textSecondary,
-    marginTop: 2,
-  },
-
-  categoryCount: {
-    minWidth: 68,
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-    borderRadius: 12,
-    backgroundColor: "#EFF6FF",
-    alignItems: "center",
-  },
-
-  categoryCountNumber: {
-    fontSize: 18,
-    fontWeight: "900",
-    color: Colors.billing,
-  },
-
-  categoryCountLabel: {
-    fontSize: 8,
-    fontWeight: "700",
-    color: Colors.textSecondary,
-  },
-
-  /* ========================= */
-  /* BANNER */
-  /* ========================= */
-
-  banner: {
-    backgroundColor: Colors.primary,
-    borderRadius: 18,
-    minHeight: 100,
-    paddingHorizontal: 16,
-    paddingVertical: 13,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 18,
-    elevation: 4,
-    overflow: "hidden",
-  },
-
-  bannerContent: {
-    flex: 1,
-    paddingRight: 10,
-  },
-
-  bannerTitle: {
-    color: "#FFFFFF",
-    fontSize: 17,
-    fontWeight: "900",
-  },
-
-  bannerSubtitle: {
-    color: "#F8EDE5",
-    fontSize: 10,
-    lineHeight: 16,
-    marginTop: 4,
-  },
-
-  bannerEmoji: {
-    fontSize: 47,
-  },
-
-  /* ========================= */
-  /* SECTION */
-  /* ========================= */
-
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "900",
-    color: Colors.heading,
-  },
-
-  sectionSubtitle: {
-    fontSize: 10,
-    color: Colors.textSecondary,
-    marginTop: 2,
-  },
-
-  categoryBadge: {
-    backgroundColor: "#FFF3E6",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 14,
-  },
-
-  categoryBadgeText: {
-    fontSize: 9,
-    fontWeight: "800",
-    color: Colors.primary,
+    marginTop: 3,
   },
 
   /* ========================= */
@@ -375,7 +233,7 @@ const styles = StyleSheet.create({
   /* ========================= */
 
   listContent: {
-    paddingBottom: 30,
+    paddingBottom: 35,
   },
 
   /* ========================= */
@@ -384,93 +242,61 @@ const styles = StyleSheet.create({
 
   categoryCard: {
     backgroundColor: Colors.card,
-    borderRadius: 16,
-    padding: 11,
-    marginBottom: 9,
+    minHeight: 72,
+    borderRadius: 17,
+    padding: 12,
+    marginBottom: 10,
     borderWidth: 1,
     borderColor: Colors.border,
-    elevation: 2,
     flexDirection: "row",
     alignItems: "center",
+    elevation: 2,
   },
 
-  numberContainer: {
-    width: 29,
-    alignItems: "center",
-    marginRight: 5,
-  },
-
-  numberText: {
-    fontSize: 10,
-    fontWeight: "800",
-    color: Colors.textLight,
-  },
-
-  categoryIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 15,
-    backgroundColor: "#FFF8F0",
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: "#F0FDF4",
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 11,
+    marginRight: 12,
   },
 
-  categoryEmoji: {
-    fontSize: 27,
+  icon: {
+    fontSize: 25,
   },
 
-  categoryInfo: {
+  categoryContent: {
     flex: 1,
-    paddingRight: 8,
   },
 
   categoryName: {
     fontSize: 16,
-    fontWeight: "900",
+    fontWeight: "800",
     color: Colors.heading,
   },
 
-  categoryDescription: {
+  categorySubtitle: {
     fontSize: 10,
     color: Colors.textSecondary,
-    marginTop: 4,
+    marginTop: 3,
   },
-
-  /* ========================= */
-  /* ARROW */
-  /* ========================= */
 
   arrowContainer: {
     width: 30,
     height: 30,
-    borderRadius: 15,
+    borderRadius: 10,
     backgroundColor: "#F3F4F6",
     justifyContent: "center",
     alignItems: "center",
   },
 
   arrow: {
-    fontSize: 25,
-    lineHeight: 26,
+    fontSize: 24,
     fontWeight: "400",
-    color: Colors.primary,
-  },
-
-  /* ========================= */
-  /* LOADING */
-  /* ========================= */
-
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  loadingText: {
-    fontSize: 12,
-    color: Colors.textSecondary,
-    marginTop: 10,
+    color: Colors.heading,
+    marginTop: -2,
   },
 
   /* ========================= */
@@ -479,35 +305,26 @@ const styles = StyleSheet.create({
 
   emptyContainer: {
     alignItems: "center",
-    paddingTop: 55,
-    paddingHorizontal: 35,
+    paddingTop: 70,
+    paddingHorizontal: 25,
   },
 
   emptyIcon: {
-    width: 75,
-    height: 75,
-    borderRadius: 24,
-    backgroundColor: "#FFF3E6",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 13,
-  },
-
-  emptyEmoji: {
-    fontSize: 36,
+    fontSize: 45,
+    marginBottom: 12,
   },
 
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: "900",
+    fontSize: 17,
+    fontWeight: "800",
     color: Colors.heading,
   },
 
   emptyText: {
-    textAlign: "center",
-    fontSize: 11,
-    lineHeight: 17,
+    fontSize: 12,
     color: Colors.textSecondary,
+    textAlign: "center",
     marginTop: 5,
+    lineHeight: 18,
   },
 });
